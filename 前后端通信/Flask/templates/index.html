@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>问候应用</title>
+    <script>
+        function greetUser() {
+            const name = document.getElementById('nameInput').value;
+            fetch(`/greet/${name}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('greetingMessage').innerText = data.message;
+                })
+                .catch(error => console.error('发生错误:', error));
+        }
+    </script>
+</head>
+<body>
+    <h1>问候应用</h1>
+    <input type="text" id="nameInput" placeholder="输入名字">
+    <button onclick="greetUser()">问候</button>
+    <p id="greetingMessage"></p>
+    <p>dsagfsag</p>
+    <img src="QQ20241107-174640.png" align="right" width="200">
+
+
+</body>
+</html>
+
+
+<header>
+
+</header>
+
+<main>
+
+</main>
