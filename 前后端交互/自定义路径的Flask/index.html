@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>属性设置</title>
+</head>
+<body>
+    <h2>输入属性</h2>
+    <form id="settingsForm">
+        <label>用户名: <input type="text" id="user"></label><br>
+        <label>密码: <input type="password" id="password"></label><br>
+        <label>URL: <input type="text" id="url"></label><br>
+        <label>Key: <input type="text" id="key"></label><br>
+        <label>Model: <input type="text" id="model"></label><br>
+        <button type="submit">提交</button>
+    </form>
+
+    <script>
+        document.getElementById("settingsForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const data = {
+                user: document.getElementById("user").value,
+                password: document.getElementById("password").value,
+                url: document.getElementById("url").value,
+                key: document.getElementById("key").value,
+                model: document.getElementById("model").value
+            };
+
+            fetch("http://127.0.0.1:5000/save", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => alert(data.message))
+            .catch(error => console.error("Error:", error));
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="control">
+        <div class="label">1.Test talk</div>
+        <button id="play">Test audio</button>
+        <br/><br/>
+        <!-- 语音选择 -->
+        <select id="voice">
+            <option value="xiaoyan">xiaoyan</option>
+            <option value="xiaoyu">xiaoyu</option>
+            <option value="vixy">vixy</option>
+            <option value="vixm">vixm</option>
+            <option value="vixl">vixl</option>
+            <option value="vixr">vixr</option>
+            <option value="vixyun">vixyun</option>
+            <option value="vixk">vixk</option>
+            <option value="vixqa">vixqa</option>
+            <option value="vixx">vixx</option>
+            <option value="vinn">vinn</option>
+            <option value="vils">vils</option>
+            <option value="vixm">vixm</option>
+            <option value="vixqa">vixqa</option>
+            <option value="vixr">vixr</option>
+            <option value="vixyun">vixyun</option>
+            <option value="vixk">vixk</option>
+            <option value="vixx">vixx</option>
+            <option value="vixl">vixl</option>
+            <option value="vixy">vixy</option>
+            <option value="xiaoyan">xiaoyan</option>
+            <option value="xiaoyu">xiaoyu</option>
+            <option value="vils">vils</option>
+            <option value="vinn">vinn</option>
+        </select>
+        <br/><br/>
+        <div class="label">2. Call the interface to generate audio</div>
+        <textarea id="text" style="width:400px;height:300px;"></textarea>
+        <br/><br/>
+        <button id="start">Start talking</button>
+        <script type="text/javascript" src="app.js"></script>
+        <br/><br/>
+        <div class="label">3. Record audio</div>
+        <button id="record">Start Recording</button>
+        <button id="stop" disabled>Stop Recording</button>
+        <br/><br/>
+        <div class="label">4. Transcription</div>
+        <textarea id="transcription" style="width:400px;height:100px;" readonly></textarea>
+    </div>
+</body>
+</html>

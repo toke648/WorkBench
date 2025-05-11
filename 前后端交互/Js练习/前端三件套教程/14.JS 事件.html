@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <button id="click_event">点击事件</button>
+    <!--input 的onfocus和onblur属性需要加()否则无法调用 -->
+    <input type="text" onfocus="focus_event()" onblur="blur_event()">
+    <script>
+        // 点击事件
+        function click_event(){
+            alert("点击事件触发了");
+        }
+        // 获取焦点事件
+        function focus_event(){
+            console.log("获取焦点");
+        }
+        // 失去焦点事件
+        function blur_event(){
+            console.log("失去焦点");
+        }
+
+        document.getElementById("click_event").addEventListener("click", click_event);
+
+    </script>
+</body>
+</html>

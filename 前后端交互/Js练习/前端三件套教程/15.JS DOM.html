@@ -1,0 +1,49 @@
+<!DOCTYPE html>  
+<html lang="en">  
+<head>  
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <title>Document</title>  
+</head>  
+<body>  
+    <div id="box1">这是一个ID选择器标签</div>  
+    <div class="box2">这是一个类选择器标签</div>  
+    <div>普通div 标签</div>  
+
+    <button>点击按钮</button>
+
+    <!-- 更新console.log的部分: 你要打印的变量是element_id，而不是element。
+        访问类和标签名称的元素: getElementsByClassName和getElementsByTagName返回的是集合（HTMLCollection），而不是单个元素，因此需要正确引用。
+        清理innerHTML的赋值: 对于类选择器，你需要引用集合中的第一个元素。
+        样式赋值给标签集合: 你需要遍历这些元素，或者使用一种方法将样式应用到集合中的每一个项。 -->
+    <script>  
+        var element_id = document.getElementById("box1");  
+        console.log(element_id);  // 打印具有ID "box1" 的第一个div  
+    
+        var element_class = document.getElementsByClassName("box2");  
+        console.log(element_class);  // 打印具有类 "box2" 的元素集合  
+    
+        var element_tag = document.getElementsByTagName("div");  
+        console.log(element_tag);  // 打印所有div元素的集合  
+
+        // 设置 ID 选择器的内容  
+        element_id.innerHTML = '<a href="http://www.baidu.com">百度</a>';  
+        
+        // 设置类选择器的内容  
+        if (element_class.length > 0) {  
+            element_class[0].innerHTML = '<a href="http://www.baidu.com">跳转链接</a>'; // 选择第一个元素  
+        }  
+        
+        // 为每个 div 标签设置样式  
+        for (var i = 0; i < element_tag.length; i++) {  
+            element_tag[i].style.color = "red";  
+            element_tag[i].style.fontSize = "20px";  
+        }  
+
+        var button_element = document.getElementsByTagName("button")[0];
+        button_element.addEventListener("click", function(){
+            alert("点击事件触发了");
+        });
+    </script>  
+</body>  
+</html>
