@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>打字钢琴</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: Arial, sans-serif; background-color: #f0f0f0; }
+.top { height: 50px; background-color: #d2edd3; }
+.top .title { color: #000; padding-left: 20px; line-height: 50px; font-size: 20px; font-weight: bold; }
+.st-piano { background-color: #e8ded3; padding: 10px; }
+.piano { display: flex; border: 1px solid #000; }
+.white { width: 40px; height: 200px; background-color: white; margin: 0 1px; position: relative; box-shadow: 0 2px 5px rgba(0,0,0,0.5); cursor: pointer; }
+.black { width: 25px; height: 120px; background-color: #3d3d3d; position: absolute; top: 0; margin-left: -12.5px; z-index: 1; cursor: pointer; }
+.white.active { background-color: #e0e0e0; }
+.black.active { background-color: #1a1a1a; }
+.note-label { position: absolute; bottom: 5px; width: 100%; text-align: center; font-size: 10px; }
+.black .note-label { color: white; }
+.trail {
+    position: absolute;
+    width: 100%;
+    height: 100px;
+    top: -100px;
+    left: 0;
+    background: linear-gradient(to top, rgba(255,255,255,0), rgba(0,255,255,0.8));
+    animation: trailUp 0.8s ease-out forwards;
+}
+@keyframes trailUp {
+    0% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-50px); }
+}
+.key-wrapper { position: relative; }
+</style>
+</head>
+<body>
+
+<div class="top">
+    <div class="title">在线钢琴</div>
+</div>
+
+<section class="st-piano">
+    <div class="piano" id="piano"></div>
+</section>
+
+<script>
+// ======== 你可以在这里自定义键盘映射 =========
+const keyboardMap = {
+    'a': 'C4',
+    'w': 'C#4',
+    's': 'D4',
+    'e': 'D#4',
+    'd': 'E4',
+    'f': 'F4',
+    't': 'F#4',
+    'g': 'G4',
+    'y': 'G#4',
+    'h': 'A4',
+    'u': 'A#4',
+    'j': 'B4',
+    'k': 'C5'
+};
+
+// ======== 生成钢琴键 =========
+const whiteKeysOrder = ["C", "D", "E", "F", "G", "A", "B"];
+const piano = document.getElementById("piano");
+let keys = [];
+
+function getNoteName(midi) {
+    const names = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+    const octave = Math.floor(midi / 12) - 1;
+    return names[midi % 12] + octave;
+}
+
+function generateKeys() {
+    for (let midi = 21; midi <= 108; midi++) { // A0 - C8
+        const noteName = getNoteName(midi);
+        if (!noteName.includes("#")) {
+            const white = document.createElement("div");
+            white.className = "white key-wrapper";
+            white.dataset.note = noteName;
+            white.innerHTML = `<div class="note-label">${noteName}</div>`;
+            piano.appendChild(white);
+            keys.push(white);
+
+            // 黑键
+            const next = getNoteName(midi + 1);
+            if (next.includes("#") && !noteName.startsWith("E") && !noteName.startsWith("B")) {
+                const black = document.createElement("div");
+                black.className = "black";
+                black.dataset.note = next;
+                black.innerHTML = `<div class="note-label">${next}</div>`;
+                white.appendChild(black);
+                keys.push(black);
+            }
+        }
+    }
+}
+generateKeys();
+
+// ======== 音频播放系统 (Web Audio API) ========
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+const bufferCache = {};
+
+async function loadSample(note) {
+    if (bufferCache[note]) return bufferCache[note];
+    try {
+        const url = `UprightPianoKW-SFZ+FLAC-20220221/samples/${note}vH.flac`; // 修改为FLAC文件路径
+        const resp = await fetch(url);
+        if (!resp.ok) {
+            throw new Error(`Failed to load audio sample: ${resp.status} ${resp.statusText}`);
+        }
+        const arrayBuffer = await resp.arrayBuffer();
+        const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+        bufferCache[note] = audioBuffer;
+        return audioBuffer;
+    } catch (error) {
+        console.error('Error loading audio sample:', error);
+        throw error;
+    }
+}
+
+function playNote(key) {
+    const note = key.dataset.note;
+    if (!note) return;
+    loadSample(note).then(buffer => {
+        const source = audioCtx.createBufferSource();
+        const gainNode = audioCtx.createGain();
+        gainNode.gain.setValueAtTime(1, audioCtx.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 2); // 2秒延音淡出
+        source.buffer = buffer;
+        source.connect(gainNode).connect(audioCtx.destination);
+        source.start();
+        source.stop(audioCtx.currentTime + 2.5);
+    });
+
+    key.classList.add("active");
+    const trail = document.createElement("div");
+    trail.className = "trail";
+    key.appendChild(trail);
+    trail.addEventListener("animationend", () => trail.remove());
+}
+
+function stopNote(key) {
+    key.classList.remove("active");
+}
+
+// ======== 鼠标事件 ========
+keys.forEach(key => {
+    key.addEventListener("mousedown", () => playNote(key));
+    key.addEventListener("mouseup", () => stopNote(key));
+    key.addEventListener("mouseleave", () => stopNote(key));
+});
+
+// ======== 键盘事件 ========
+const activeKeys = new Set();
+
+document.addEventListener("keydown", (e) => {
+    if (e.repeat) return;
+    const note = keyboardMap[e.key];
+    if (note && !activeKeys.has(e.key)) {
+        activeKeys.add(e.key);
+        const key = Array.from(keys).find(k => k.dataset.note === note);
+        if (key) playNote(key);
+    }
+});
+
+document.addEventListener("keyup", (e) => {
+    const note = keyboardMap[e.key];
+    if (note) {
+        activeKeys.delete(e.key);
+        const key = Array.from(keys).find(k => k.dataset.note === note);
+        if (key) stopNote(key);
+    }
+});
+</script>
+
+</body>
+</html>

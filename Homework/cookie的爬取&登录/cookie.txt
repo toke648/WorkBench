@@ -1,0 +1,3 @@
+#LWP-Cookies-2.0
+Set-Cookie3: acw_tc=1a0c655217469557427362391e00788854e9330aefa175eb8659bf653ae17a; path="/"; domain="www.ptpress.com.cn"; path_spec; expires="2025-05-11 09:59:01Z"; HttpOnly=None; version=0
+Set-Cookie3: JSESSIONID=C51A481644E915F58555431150C55F2C; path="/"; domain="www.ptpress.com.cn"; path_spec; secure; discard; HttpOnly=None; version=0

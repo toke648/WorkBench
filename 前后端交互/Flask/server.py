@@ -28,6 +28,7 @@ app.static_folder = os.path.join(os.getcwd(), 'static')
 # U: 你能给我一个完整的例子吗？
 # A: 当然可以，下面是一个完整的例子
 
+from flask import Flask, render_template
 from flask import Flask, request, jsonify
 from flask import send_from_directory
 from flask_cors import CORS
@@ -38,32 +39,10 @@ app = Flask(__name__) # 创建 Flask 应用
 CORS(app) # 启用跨域请求支持
 
 @app.route('/')
-def index():
-    return send_from_directory("static", "index.html")
+def home():
+    return render_template('index.html')  # 从 templates 文件夹中渲染 index.html 模板
 
-# @app.route('/templates', methods=['GET'])
-# async def deal_audio():
-#     text = request.args.get('text')
-#     print(text)
-#     voice = request.args.get('voice', 'zh-CN-XiaoxiaoNeural')
-#     file_name = request.args.get('file_name', 'test.mp3')
 
-#     if not text:
-#         return jsonify({"error": "Missing text"}), 400
-
-#     try:
-#         communicate = edge_tts.Communicate(text, voice, proxy='http://127.0.0.1:7897')
-#         print(f"Saving audio to {file_name}")  # 调试输出
-#         await communicate.save(file_name)
-#         print(f"Audio saved successfully: {file_name}")  # 张哲云成功信息
-#         return jsonify({"audio_file": f"http://127.0.0.1:2020/audio/{file_name}"})
-#     except Exception as e:
-#         print(f"Error occurred: {str(e)}")  # 错误信息
-#         return jsonify({"error": str(e)}), 500
-
-# @app.route('/audio/<path:filename>', methods=['GET'])
-# def get_audio(filename):
-#     return send_from_directory(os.getcwd(), filename)
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=5000)

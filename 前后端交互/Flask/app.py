@@ -40,7 +40,7 @@ def home():
 
 @app.route('/greet/<name>')
 def greet(name):
-    return jsonify(message=f'你好, {name}!')
+    return jsonify(message=f'你好, {name}!') #   使用 jsonify 返回 JSON 数据 */
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
