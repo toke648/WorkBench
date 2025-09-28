@@ -40,8 +40,8 @@ print('获取验证码为：', kaptcha)
 
 # 登录数据
 data = {
-    'username': '13661797680',  # 用户名
-    'password': 'timsrd_217',   # 密码
+    'username': '',  # 用户名
+    'password': '',   # 密码
     'verifyCode': kaptcha       # 输入的验证码
 }
 
