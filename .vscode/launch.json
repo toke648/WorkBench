@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "c:/Users/16673/Desktop/WorkBench（工作台）",
-      "program": "c:/Users/16673/Desktop/WorkBench（工作台）/build/Debug/outDebug",
+      "cwd": "c:/Users/16673/Desktop/WorkBench",
+      "program": "c:/Users/16673/Desktop/WorkBench/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [

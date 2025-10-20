@@ -1,7 +1,0 @@
-# This file is used internally by FFMPEG.
-file 'file:C:/Users/16673/Desktop/Workbench（工作台）/media/videos/1080p60/partial_movie_files/CircleToSquare/3977891868_620549768_223132457.mp4'
-file 'file:C:/Users/16673/Desktop/Workbench（工作台）/media/videos/1080p60/partial_movie_files/CircleToSquare/2852726489_3394500337_914573683.mp4'
-file 'file:C:/Users/16673/Desktop/Workbench（工作台）/media/videos/1080p60/partial_movie_files/CircleToSquare/2852726489_2595043746_1503646932.mp4'
-file 'file:C:/Users/16673/Desktop/Workbench（工作台）/media/videos/1080p60/partial_movie_files/CircleToSquare/2852726489_4217992463_3354658172.mp4'
-file 'file:C:/Users/16673/Desktop/Workbench（工作台）/media/videos/1080p60/partial_movie_files/CircleToSquare/2852726489_951759699_4129151947.mp4'
-file 'file:C:/Users/16673/Desktop/Workbench（工作台）/media/videos/1080p60/partial_movie_files/CircleToSquare/2852726489_4217992463_250885255.mp4'
