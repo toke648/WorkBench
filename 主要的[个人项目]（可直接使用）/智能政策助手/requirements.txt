@@ -1,0 +1,13 @@
+bs4
+gradio
+pandas
+openai
+requests 
+beautifulsoup4 
+
+pypdf 
+python-docx 
+
+langchain
+langchain-chroma 
+sentence-transformers

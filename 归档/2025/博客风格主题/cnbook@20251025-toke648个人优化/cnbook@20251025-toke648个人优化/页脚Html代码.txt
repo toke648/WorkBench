@@ -1,0 +1,1041 @@
+<script src="https://blog-static.cnblogs.com/files/gshang/gshang.owo.2020.01.05.1.js"></script>
+<script src="https://blog-static.cnblogs.com/files/gshang/vue@2.6.14.js"></script>
+<script src="https://blog-static.cnblogs.com/files/gshang/elemnt_2.13.2.js"></script>
+<script src="https://blog-static.cnblogs.com/files/gshang/jquery.cookie.js"></script>
+<script src="https://files.cnblogs.com/files/gshang/highlightMATLABCode.js"></script>
+<script src="https://files.cnblogs.com/files/gshang/gs.js"></script>
+<!-- <script src="https://blog-static.cnblogs.com/files/gshang/Content.js"></script> -->
+<!-- <script src="https://cdn.bootcdn.net/ajax/libs/simple-scrollspy/2.5.3/simple-scrollspy.min.js"></script> -->
+
+<script>
+    /* 初始化 */
+    function basicInit() 
+    {
+        $(function() {
+            if ($.cookie('theme') == null) {
+                $.cookie('theme', 'light', {
+                    expires: 30,
+                    path: '/',
+                    domain: 'cnblogs.com'
+                });
+            }
+            if ($.cookie('theme') == 'dark') {
+                //$('.theme').addClass('theme-dark');
+                document.documentElement.setAttribute('theme', 'dark');
+            }
+        });        
+        let favicon_url = "https://images.cnblogs.com/cnblogs_com/gshang/1453531/o_logo.png";
+        setFavicon(favicon_url);
+        setLayout();
+    };
+
+    function setFavicon(favicon_url)
+    {
+        // 博客 favicon
+        $("#favicon").replaceWith(
+           `<link rel="shortcut icon" href="${favicon_url}">`
+        );
+    }
+
+    /* 布局调整 */
+    function setLayout()
+    {
+        // $('#mainContent').prepend($('#header'));
+        // $(".forFlow").append($("#footer"));
+        // $("#footer").show();
+        
+        // 全屏黑幕
+        $("#main").append('<div class="mask"></div>');
+        
+        // 侧边悬浮按钮
+        if($("#home").find(".float-btn").length <1)
+        {
+            $("#home").append(
+                '<div class="float-btn"><ul>' +
+                '<li class="btn-top"><span></span><a href="#top"></a></li>' +
+                '<li class="btn-theme"><span></span><a href="javascript:changeTheme()"></a></li>' +
+                '<li class="btn-main"><span></span><a href="javascript:sidebarToggle()"></a></li>' +
+                "</ul></div>"
+            );
+        }
+        
+        // 新消息红点
+        msgDot();
+    }
+
+    function setProfile() 
+    {
+        let avatar = "https://pic.cnblogs.com/avatar/3027557/20250423150645.png",
+            homepage = $('#profile_block a').eq(0).attr('href'),
+            name = $('#profile_block a').eq(0).text(),
+            desc = $('#blogTitle h2').html(),
+            join = $('#profile_block a').eq(1).attr('title'),
+            age = $('#profile_block a').eq(1).text(),
+            fans_link = $('#profile_block a').eq(2).attr('href'),
+            fans = $('#profile_block a').eq(2).text(),
+            follow_link = $('#profile_block a').eq(3).attr('href'),
+            follow = $('#profile_block a').eq(3).text(),
+            post = $('#stats_post_count').text().replace(/[^0-9]/ig, ""),
+            article = $('#stats_article_count').text().replace(/[^0-9]/ig, ""),
+            comment = $('#stats-comment_count').text().replace(/[^0-9]/ig, ""),
+            view_text = $('#stats-total-view-count span').text(),
+            view_num = $('#stats-total-view-count span').attr('title').replace(/[^0-9]/ig, "")
+        let profile = `
+    <div id="my-profile">
+    <div id="top-info">
+        <div id="user-avatar">
+            <div class="avater-border"></div>
+            <a href="${homepage}" class="my-logo-container"><img src="${avatar}" class="my-logo" /></a>
+        </div>
+        <div class="my-name-container">
+            <div>
+                <span class="my-name"><a href="${homepage}">${name}</a></span>
+                <span id="age" title="${join}">${age}</span>
+            </div>
+            <div class="my-desc">${desc}</div>
+        </div>
+    </div>
+    <div class="my-detaial">
+        <ul>
+            <li id="follow"><a href="${follow_link}" title=" follow">${follow}</a></li>
+            <li id="fans"><a href="${fans_link}" title=" fans">${fans}</a></li>
+            <li id="more">
+                <div class="my-stats">
+                    <div class="btn-more"></div>
+                    <ul class="dropwon-content">
+                        <li id="post" title="随笔： ${post}"> ${post}</li>
+                        <li id="article" title="文章： ${article}"> ${article}</li>
+                        <li id="comment" title="评论： ${comment}"> ${comment}</li>
+                        <li id="view" title="阅读： ${view_num}"> ${view_text}</li>
+                    </ul>
+                </div>
+            </li>
+        </ul>
+    </div>
+    <div id="follow-btn"></div>
+
+</div>
+    `;
+        $('#profile_block').hide();
+        $('#blog-news').prepend(profile);
+        $('#follow-btn').append($('#p_b_follow'));
+    };
+
+    /* 表情包 */
+    function updateProfile()
+    {
+        const targetNode = document.getElementById('profile_block');
+        updateContentOnChane(targetNode,setProfile);
+    }
+    function dggit() 
+    {
+        if ($("#topics").length > 0) {
+
+            // setZan();
+
+            $('#digg_tips').bind("DOMNodeInserted", function () {
+
+                //console.log($('#digg_tips').text())
+                $('#digg_tips').hide();
+                if ($('#digg_tips').text() == "支持成功" || $('#digg_tips').text() == "取消支持成功") {
+                    ele.$message({
+                        showClose: true,
+                        message: $('#digg_tips').text(),
+                        duration: 1000,
+                        type: "success",
+                    });
+                }
+
+                if ($('#digg_tips').text() == "您已支持过" ||
+                    $('#digg_tips').text() == "不能推荐自己的内容" ||
+                    $('#digg_tips').text() == "不能反对自己的内容") {
+                    ele.$message({
+                        showClose: true,
+                        message: $('#digg_tips').text(),
+                        duration: 1000,
+                        type: "warning",
+                    });
+                }
+            })
+        }
+    }
+   
+    /* 魔法注释 */
+    function magicMarkdown() 
+    {
+        // 添加 html 代码
+        $("code.language-html").each(function () {
+            if ($(this).text().includes("<!-- run -->")) {
+                $("#cnblogs_post_body").append($(this).text().replace("<!-- run -->",""));
+                $(this).parent().remove();
+            }
+        });
+
+        // 添加 js 代码
+        $("code.language-html").each(function () {
+            if ($(this).text().includes("<!-- script -->")) {
+                $("head").append($(this).text().replace("<!-- script -->",""));
+                $(this).parent().remove();
+            }
+        });
+
+        // 运行脚本
+        $("code.language-js").each(function () {
+            if ($(this).text().includes("// run")) {
+                window.eval($(this).text().replace("// run",""));
+                $(this).parent().remove();
+            }
+        });
+    };
+
+    /* 折叠合集 */
+    function folderCollection() 
+    {
+        let collection = $('.current-collection');
+        if (collection.length > 0) {
+            collection.addClass('collapsed');
+        }
+    }
+
+    // 参考文献
+    function ref() 
+    {
+        $(".footnote-ref a").each(function () {
+            $(this).attr("title", $($(this).attr("href")).text().replace('/g', ''));
+        });
+    }
+
+    // 图注释文字
+    function imgCaption() 
+    {
+
+        $('.cnblogs-markdown p img').each(function () {
+            if (typeof $(this).attr("alt") != "undefined") {
+                if ($(this).attr("alt") != "") {
+                    $(this)
+                        .parent()
+                        .after(
+                            '<div class="img-caption">' + $(this).attr("alt") + "</div>"
+                        );
+                }
+            }
+        })
+    }
+    /* 按钮点击事件 */
+    function btnClick() 
+    {
+        // 侧边开关
+        $("#sidebar-toggler,.mask").click(function () {
+            sidebarToggle();
+        });
+    };
+
+    /* 博客正文标题背景图 */
+    function blogPostTitle() 
+    {
+        if ($("#cnblogs_post_description .desc_img").length > 0) {
+            if ($(".forFlow").find(".post-header").length > 0)
+            {
+                return;
+            }
+            $(".forFlow").before('<div class="post-header"></div>');
+            $(".post-header").append($(".postTitle"));
+            $(".post-header").append($(".postDesc"));
+            $(".post-header").css(
+                "background",
+                "url(" + $("#cnblogs_post_description .desc_img").attr("src") + ")"
+            );
+        }
+    };
+
+    /* 随笔分类背景图 */
+    function entryPostTitle() 
+    {
+        if ($(".entrylistDescription .desc_img").length > 0) {
+            $("#mainContent").prepend('<div class="post-header"></div>');
+            $(".post-header").append($(".entrylistTitle"));
+            $(".post-header").append($(".entrylistDescription"));
+            $(".post-header").css(
+                "background",
+                "url(" + $(".entrylistDescription .desc_img").attr("src") + ")"
+            );
+        }
+    };
+
+    /* 切换主题 */
+    function changeTheme() 
+    {
+        if ($.cookie("theme") == "light") {
+            $.cookie("theme", "dark", {
+                expires: 30,
+                path: "/",
+                domain: "cnblogs.com",
+            });
+            document.documentElement.setAttribute("theme", "dark");
+        } else {
+            $.cookie("theme", "light", {
+                expires: 30,
+                path: "/",
+                domain: "cnblogs.com",
+            });
+            document.documentElement.removeAttribute("theme", "dark");
+        }
+    };
+
+    /* 侧边开关 */
+    function sidebarToggle() 
+    {
+        $("body").toggleClass("main-widthout-sidebar");
+    };
+
+    /* 侧边显示 */
+    function showSide() 
+    {
+        $("#sideBar").removeClass("content-active");
+        $("#sideBar").addClass("side-active");
+        $("#sideBar").scrollTop(0);
+    };
+
+    /* 目录显示 */
+    function showContent() 
+    {
+        $("#sideBar").removeClass("side-active");
+        $("#sideBar").addClass("content-active");
+        //contentScroll();
+
+    };
+
+    /* 平滑滚动控制 */
+    function myscroll() 
+    {
+        $("a[href*=\\#]").click(function () {
+            if (
+                location.pathname.replace(/^\//, "") ==
+                this.pathname.replace(/^\//, "") &&
+                location.hostname == this.hostname
+            ) {
+                var $target = $(this.hash);
+                $target =
+                    ($target.length && $target) || $("[name=" + this.hash.slice(1) + "]");
+                if ($target.length) {
+                    var targetOffset = $target.offset().top;
+                    // 
+                    $("html,body").animate({
+                        scrollTop: targetOffset - 0,
+                    },
+                        0
+                    );
+
+                    return false;
+                }
+                window.location.href = "#" + this.attr('id');
+            }
+        });
+
+
+
+    };
+
+    // 滚动监听事件
+    function scrollListen() 
+    {
+        var windowTop = 0;
+        $(window).scroll(function () {
+            var scrolls = $(this).scrollTop();
+            if (scrolls >= windowTop) {
+                //当scrolls>windowTop时，表示页面在向下滑动
+                $(".float-btn").addClass("float-btn-hide");
+                // if ($("#topics").length > 0 && scrolls > $(".postTitle").offset().top) {
+                // $("#header").addClass("header-hidde");
+                //}
+                windowTop = scrolls;
+            } else {
+                $(".float-btn").removeClass("float-btn-hide");
+                // $("#header").removeClass("header-hidde");
+                windowTop = scrolls;
+            }
+        });
+    };
+
+    function postBasicSetting() 
+    {
+        // 代码高亮
+        // $("pre code").each(function(i, block) {
+        //     hljs.highlightBlock(block);
+        // });
+
+        // // 表格滚动
+        // $("table").each(function() {
+        //     $(this).css("cssText", "width:100%!important;display:table;");
+        //     $(this).wrapAll('<div class="tablebox"></div>');
+        //     $(".tablebox").css("overflow", "auto");
+        // });
+
+        // 新窗口打开链接
+        $('#cnblogs_post_body a[href^="http"]').each(function () {
+            $(this).attr("target", "_blank");
+        });
+        // 侧边悬浮评论按钮
+        $(".btn-main").before(
+            `<li class="btn-post-info"><span></span><a href="#blog_post_info_block"></a></li>
+            <li class="btn-comment"><span></span><a href="#comment_form_container"></a></li>
+            `
+        );
+
+        // 博客标题向下滚动显示
+        
+            // $("#header").append(
+            //   '<div class="post-navbar"><div class="post-title"></div>'
+            // );
+            // $(".post-title").text($(".postTitle span").text());
+        
+        // 图片查看器
+        // fancyBox($(".cnblogs-markdown img"));
+
+        // 代码复制
+        //codeCopy($("pre"), "post");
+    };
+
+    // 图片查看器
+    function fancyBox(Img) 
+    {
+        // $(".cnblogs-markdown img")
+        Img.each(function () {
+            var element = document.createElement("a");
+            $(element).attr("data-fancybox", "gallery");
+            $(element).attr("href", $(this).attr("src"));
+            $(element).attr("data-caption", $(this).attr("alt"));
+            $(this).wrap(element);
+            if (typeof $(this).attr("alt") != "undefined") {
+                if ($(this).attr("alt") != "") {
+                    $(this)
+                        .parent()
+                        .after(
+                            '<div class="img-caption">' + $(this).attr("alt") + "</div>"
+                        );
+                }
+            }
+        });
+    };
+
+    /* 代码复制 */
+    function codeCopy(codeElement, prefix) 
+    {
+        // 代码复制按钮
+        for (i = 0; i <= codeElement.length; i++) {
+            codeElement.eq(i).wrapAll('<div class="copyItem"></div>');
+            $(".copyItem").css("position", "relative");
+
+            if (codeElement.eq(i).children("code").length > 0) {
+                var codeType = codeElement
+                    .eq(i)
+                    // .children("code")
+                    .attr("class")
+                    // .split(" ")[0]
+                    .split("-")[1];
+                if (codeType == null) {
+                    codeType = "";
+                } else {
+                    codeType = codeType.toLowerCase();
+                }
+                codeElement
+                    .eq(i)
+                    .before('<div class="codeType">' + codeType + "</div>");
+            }
+
+            codeElement
+                .eq(i)
+                .before(
+                    '<div class="clipboard-button" id="copy_btn_' +
+                    i +
+                    ' " data-clipboard-target="#' +
+                    prefix +
+                    "_copy_target_" +
+                    i +
+                    '"title="复制"></div>'
+                );
+            codeElement.eq(i).attr("id", prefix + "_copy_target_" + i);
+        }
+
+        codeElement.children("code").each(function () {
+            var lines = $(this).text().split("\n").length - 1;
+            var $numbering = $("<ul/>").addClass("pre-numbering");
+            $(this).addClass("has-numbering").parent().append($numbering);
+            for (i = 1; i <= lines; i++) {
+                $numbering.append($("<li/>").attr("data-number", i));
+            }
+        });
+    };
+
+    /* 代码复制提示 */
+    function copyCodeTip() 
+    {
+        var clipboard = new ClipboardJS(".clipboard-button");
+        clipboard.on("success", function (e) {
+            ele.$message({
+                showClose: true,
+                message: "代码复制成功！",
+                duration: 1000,
+                type: "success",
+            });
+            e.clearSelection();
+        });
+        clipboard.on("error", function (e) {
+            ele.$message({
+                showClose: true,
+                message: "代码复制失败！",
+                duration: 1000,
+                type: "error",
+            });
+            e.clearSelection();
+        });
+    };
+
+    /* owo 表情包插件 */
+    // 表情按钮按下
+    function load_face(b) {
+        var c = new OwO({
+            logo: '<i class="fa fa-smile-o" aria-hidden="true"></i>',
+            container: document.getElementsByClassName("OwO")[0],
+            target: document.getElementById("tbCommentBody"),
+            api: "https://cdn.jsdelivr.net/gh/gshang2018/home/gshang.owo.2024.09.16.json",
+            //api: "https://files.cnblogs.com/files/gshang/gshang.owo.2024.09.16.json",
+            //api:"https://www.peterjxl.com/peterjxl.com-Twikoo-Sticker.json",
+            position: "down",
+            width: "100%",
+            maxHeight: "250px",
+        });
+        b.classList.add("OwO-open");
+        b.onclick = null;
+    };
+
+    function owoEmoji() 
+    {
+        $(".commentbox_footer").prepend(
+            '<div class="OwO" onclick="load_face(this)"><div class="OwO-logo"><i class="fa fa-smile-o" aria-hidden="true"></i></div></div>'
+        );
+    };
+
+    function updateContentOnChane(targetNode, action)
+    {
+         // 获取要监控的元素
+        // 创建一个 MutationObserver 实例，并定义回调函数
+        const observer = new MutationObserver((mutationsList) => {
+            for (const mutation of mutationsList) {
+                if (mutation.type === 'childList') {
+                    // console.log('A child node has been added or removed.');
+                    action();
+                } else if (mutation.type === 'attributes') {
+                    // console.log('The ' + mutation.attributeName + ' attribute was modified.');
+                }
+            }
+        });
+
+        // 配置观察选项
+        const config = {
+            attributes: true,
+            childList: true,
+            subtree: false // 观察目标节点及其后代节点
+        };
+
+        // 启动观察
+        observer.observe(targetNode, config);
+
+    }
+    
+    /* 表情包 */
+    function updateOwO()
+    {
+        const targetNode = document.getElementById('comment_form_container');
+        updateContentOnChane(targetNode,owoEmoji);
+    }
+
+    /* 表情包更新 */
+    function setOwoEmoji()
+    {
+        owoEmoji();
+        updateOwO();
+    }
+    
+    /* 侧边目录滚动激活 */
+    function contentActiveListen() 
+    {
+        //开启滚动监听, 监听所有在.nav类下的li
+        var top_offset = 60;
+        $("body").scrollspy({
+            offset: top_offset, // 偏置80，防止遮挡
+        });
+        $(window).scroll(function () {
+            if ($('#sideBar').hasClass('content-active')) {
+                contentScroll();
+            }
+        });
+    };
+
+    
+    function contentScroll() 
+    {
+        var title = $('.side-choose');
+        var now = $("#sidebar_scroller").find(".active");
+        if(now.length &&title.length )
+        {
+            var top_distance =0;
+            var top_distance = now.offset().top - title.offset().top - title.height() - 10 ;
+            $("#sideBar").scrollTop(top_distance);
+        }
+        // var basicHeight = now.outerHeight();
+        // var prevNum = now.prevAll().length + 1;
+        // var prevNum = now.parents('.nav-line').length + 1;
+
+
+    }
+    
+    function msgDot() 
+    {
+        $(document).ajaxComplete(function (event, xhr, option) {
+            if ($('#msg_count').text() != "") {
+                $("#blog_nav_contact").addClass("has_msg");
+            }
+        })
+    }
+    
+    /* 侧边目录 */
+function setSideContentTest() {
+    const $headers = $("#cnblogs_post_body :header");
+    if (!$headers.length) return;
+
+    //添加导航目录的内容
+    $("#sideBar").prepend(
+        '<div id="sidebar_scroller" class="sidebar-block"><ul class="nav"></ul></div>'
+    );
+    $("#sideBar").prepend(
+        '<div class="side-choose"><a id="myside" href="javascript:showSide()">侧边</a><a id="mycontent" href="javascript:showContent()">大纲</a></div>'
+    );
+    $("#sideBarMain").hide();
+    showContent();
+    
+    // 清理旧容器
+    $("#sidebar_scroller").remove();
+    
+    // 创建新目录容器
+    const sidebar = $(`
+        <div id="sidebar_scroller">
+            <ul class="nav-root"></ul>
+        </div>
+    `).appendTo("#sideBar");
+
+    // 核心逻辑：动态生成嵌套结构
+    let stack = [{ level: 0, ul: $(".nav-root", sidebar) }];
+    const idCounter = new Map();
+    $headers.each(function(i) {
+        const currentHeader = this;
+        
+        const count = (idCounter.get(currentHeader.innerText) || 0) + 1;
+        idCounter.set(currentHeader.innerText, count);
+        currentHeader.id = count > 1 ? `${currentHeader.innerText}-${count - 1}` : currentHeader.innerText;
+        const currentLevel = parseInt(currentHeader.tagName.slice(1)); // H标签转数字层级
+        
+        // 预测下一个标题层级
+        const nextHeader = $headers[i + 1];
+        const nextLevel = nextHeader ? parseInt(nextHeader.tagName.slice(1)) : 0;
+        const hasChildren = nextLevel > currentLevel;
+
+        // 动态回退到正确父级
+        while (stack.length > 1 && stack[stack.length-1].level >= currentLevel) {
+            stack.pop();
+        }
+        const parent = stack[stack.length-1];
+        
+        // 生成带条件判断的目录项（关键修改点）
+        // const li = $(`
+        //     <li class="nav-item ${hasChildren ? 'is-expanded' : ''}" data-level="${currentLevel}">
+        //         <div class="nav-line">
+        //             ${hasChildren ? '<div class="nav-toggle"></div>' : ''}<a href="#${currentHeader.id}" class="nav-title">${currentHeader.textContent}</a>
+        //         </div>
+        //     </li>
+        // `);
+
+        const li = $(`
+            <li class="nav-item" data-level="${currentLevel}">
+                <div class="nav-line">
+                    ${hasChildren ? '<div class="nav-toggle"></div>' : ''}<a href="#${currentHeader.id}" class="nav-title">${currentHeader.textContent}</a>
+                </div>
+            </li>
+        `);
+
+        parent.ul.append(li);
+        
+        // 为有子级的项创建嵌套容器
+        if (hasChildren) {
+            const childUl = $('<ul class="nav-children"></ul>');
+            li.append(childUl);
+            stack.push({ level: currentLevel, ul: childUl });
+        }
+        
+
+    });
+
+
+    let isPC  = window.innerWidth > 1000;
+    if(isPC)
+    {
+        sidebarToggle();
+    }
+    // 折叠事件绑定（仅对有按钮的项生效）
+    sidebar.on('click', '.nav-toggle', function(e) {
+        e.stopPropagation();
+        const $li = $(this).closest('.nav-item');
+        const $children = $li.children('.nav-children');
+        //$children.toggle();
+        $li.toggleClass('is-expanded');
+        // $children.stop().slideToggle(200);
+    });
+
+// 当前章节高亮功能 =========================
+    let observerOptions = {
+        root: null,//document.querySelector('a[name="top"]'),
+        rootMargin: '0% 0px -99.0% 0px', // 顶部40%为触发区
+        threshold: [ 0] //多级触发阈值
+    };
+    
+    // 高亮控制函数
+    let currentActiveId = null;
+    // 修改updateActiveItem函数
+    const updateActiveItem = (id) => {
+        if (id === currentActiveId) return;
+
+        // 移除旧高亮
+        $('.nav-item.active').removeClass('active').parents('.nav-item').removeClass('is-expanded');
+        
+        // 设置新高亮并展开父级
+        // const $targetItem = $(`a[href="#${id}"]`).closest('.nav-item');
+        const $targetItem = $(`a[href="#${id}"]`).closest('.nav-item');
+        $targetItem.addClass('active').parents('.nav-item').addClass('is-expanded'); // 同时展开所有父级
+        currentActiveId = id;
+
+        //滚动到顶部显示
+        var title = $('#sidebar_scroller');
+        var now = $(`a[href="#${id}"]`).closest('.nav-item');
+        if(now.length > 0 && title.length>0 )
+        {
+            var top_distance = Math.abs(now.offset().top - title.offset().top-10);
+            $("#sideBar").scrollTop(top_distance);
+        }    
+    };
+
+    // IntersectionObserver监听标题
+    const observer = new IntersectionObserver((entries) => {
+        //console.log('entries:',entries);
+        entries.forEach(entry => {
+            const { top,bottom } = entry.boundingClientRect;
+            const height = bottom - top;
+            if (entry.isIntersecting) {
+
+                if (top >= 0) {
+                    //console.log('向下滚动触发:', entry.target.id);
+                    //observerOptions.rootMargin = '0% 0px -100% 0px';
+                } else {
+                    //observerOptions.rootMargin = `-${height}px 0px -100% 0px`;
+                    //console.log('向上滚动触发:', entry.target.id);
+                }
+
+                const targetId = entry.target.id;
+                // 延迟执行避免快速滚动误判
+                updateActiveItem(targetId);
+                //setTimeout(() => updateActiveItem(targetId), 50);
+
+            }
+        });
+    }, observerOptions);
+
+    // 监听所有标题元素
+    $headers.each((i, header) => {
+        if (header.id) observer.observe(header);
+    });
+
+    // 初始化时根据hash高亮
+    if (window.location.hash) {
+        updateActiveItem(window.location.hash.slice(1));
+    }
+}
+
+
+
+
+    function setSideContent() 
+    {
+        var $ph = $("#cnblogs_post_body :header:eq(0)");
+        if ($ph.length > 0) {
+            //设置层级为1
+            $ph.attr("offset", "1");
+            //添加导航目录的内容
+            $("#sideBar").prepend(
+                '<div id="sidebar_scroller" class="sidebar-block"><ul class="nav"></ul></div>'
+            );
+            $("#sideBar").prepend(
+                '<div class="side-choose"><a id="myside" href="javascript:showSide()">侧边</a><a id="mycontent" href="javascript:showContent()">大纲</a></div>'
+            );
+            $("#sideBarMain").hide();
+            showContent();
+            //遍历文章里每个h标签
+            $("#cnblogs_post_body :header").each(function (i) {
+                var $h = $(this);
+                //设置h标签的id, 编号从0开始
+
+                // $h.append('<a class="title-link" id="scroller-' + i + '" href="#' + $h.attr("id") + '"></a>');
+                $h.attr("class", "title-parent");
+                //比上一个h标签层级小, 级数加1
+                if ($h[0].tagName > $ph[0].tagName) {
+                    $h.attr("offset", parseInt($ph.attr("offset")) + 1);
+                } //比上一个h标签层级大, 级数减1
+                else if ($h[0].tagName < $ph[0].tagName) {
+                    var h = parseInt($h[0].tagName.substring(1));
+                    var ph = parseInt($ph[0].tagName.substring(1));
+
+                    var offset = parseInt($ph.attr("offset")) - (ph - h);
+                    if (offset < 1) {
+                        offset = 1;
+                    }
+                    $h.attr("offset", offset);
+                } //和上一个h标签层级相等时, 级数不变
+                else {
+                    $h.attr("offset", $ph.attr("offset"));
+                }
+                //添加h标签的目录内容
+                $("#sidebar_scroller ul").append(
+                    '<li class="scroller-offset' +
+                    $h.attr("offset") +
+                    '" + ><a href="#' +
+                    $h.attr("id") +
+                    '" title="' + $h.text() + '">' +
+                    $h.text() +
+                    "</a></li>"
+                );
+                //最后设置自己为上一个h标签
+                $ph = $h;
+            });
+            contentActiveListen(); // 侧边目录滚动激活
+        }
+    };
+
+    /* 头像设置 */
+    function setAvatar() 
+    {
+        // 头像
+        $.each($(".feedbackItem"), function (index, ele) {
+
+            var self = $(ele);
+            // 已经处理过了的则跳过
+            if (self.find('comment_avatar_container').length > 0)
+            {
+                return;
+            }
+            var obj = self.find(".blog_comment_body");
+            var id = obj.attr("id").split("_")[2];
+            var blog = self.find('a[id^="a_comment_author"]');
+            var blogUrl = blog.attr("href");
+            var imgSrc =
+                $("#comment_" + id + "_avatar").html() ||
+                "https://images.cnblogs.com/cnblogs_com/gshang/1609278/o_250420155030_simple_avatar.gif";
+            
+            self.prepend(
+                '<a class="comment_avatar_container" target="_blank" href="' +
+                blogUrl +
+                '"><img src="' +
+                imgSrc +
+                '" style="float:left;" class="comment_avatar"></a>'
+            );
+            $(".feedbackListSubtitle").addClass("feedbackListSubtitle_right");
+            $(".feedbackCon").addClass("feedbackCon_right");
+        });
+    }
+   
+    /*头像更新*/
+    function updateAvatar()
+    {
+        const targetNode = document.getElementById('blog-comments-placeholder');
+        updateContentOnChane(targetNode,setAvatar);
+    }
+
+        
+
+
+     /* github 样式 引用 */
+    function setInfoCard()
+    {
+        const AlertInfoMap = 
+        {
+            "[!NOTE]":{
+                "color":"#0969da",
+                "icon":"fa fa-info-circle",
+                "title":"备注",
+                "class":"markdown-alert-note"
+            },
+            "[!TIP]":{
+                "color":"#1a7f37",
+                "icon":"fa fa-check-circle",
+                "title":"提示",
+                "class":"markdown-alert-tip"
+            },
+            "[!IMPORTANT]":{
+                "color":"#8250df",
+                "icon":"fa fa-exclamation-circle",
+                "title":"重要",
+                "class":"markdown-alert-important"
+            },
+            "[!WARNING]":{
+                "color":"#bf8700",
+                "icon":"fa fa-exclamation-triangle",
+                "title":"警告",
+                "class":"markdown-alert-warning"
+            },    
+            "[!CAUTION]":{
+                "color":"#cf222e",
+                "icon":"fa fa-times-circle",
+                "title":"注意",
+                "class":"markdown-alert-caution"
+            },     
+        }
+
+        $('blockquote').each(
+            function()
+            {
+                let words = $(this).text().split("\n");
+           
+                if (words.length >= 2 
+                    & words[1] in AlertInfoMap
+                )
+                {
+                    let newContent = $(this).html();
+                    let alertType = AlertInfoMap[words[1]];
+                    newContent = newContent.replace(words[1],
+                        `<span style="color:${alertType["color"]};">
+                        <i class="${alertType["icon"]}" style="margin-right:6px"></i>
+                        <span style="font-weight:bold">${alertType["title"]}</span>
+                        </span>`);
+                    $(this).html(newContent);
+ 
+                    $(this).addClass(alertType["class"]); // 添加样式
+                    $(this).css("border-left-color",alertType["color"]);
+                    
+                }
+
+            }
+        )
+    };  
+    function updateQuote()
+    {
+        const targetNode = document.getElementById('blog-comments-placeholder');
+        updateContentOnChane(targetNode,setInfoCard);
+    }
+
+    /* 评论区 */
+    function setComment() 
+    {
+        setAvatar();
+        updateAvatar();  
+        updateQuote();
+    };
+
+</script>
+
+<script>
+
+    function cnbook(){
+        // 参数初始化
+        var ele = new Vue({});
+        var windowTop = 0;
+
+        $(function () {
+            // 基础组件初始化
+            basicInit();
+            // 其他初始化
+            if ($("#topics").length > 0) {
+                magicMarkdown(); // 魔法注释
+                setInfoCard();
+                blogPostTitle(); // 博客正文标题背景图
+                //imgCaption();
+                //ref();
+                // $("#loading-container").fadeToggle("fast");
+                postBasicSetting(); // 博客基本样式初始化
+                //setSideContent();
+                setSideContentTest();
+
+                //buildSmartSidebar();
+                folderCollection(); // 折叠合集列表
+                setComment(); // 评论区
+                setOwoEmoji();  // 表情包
+
+            } else {
+                // entryPostTitle();  随笔分类背景图
+                //  $("#loading-container").fadeToggle("fast");
+            }
+            //setProfile(); // 公告信息
+            btnClick(); // 点击事件
+            scrollListen(); // 滚动监听事件
+        });
+    }
+    cnbook();
+    
+</script>
+
+
+
+
+
+
+
+
+
+<!--下面是自定义的内容-->
+
+
+
+<script defer src="https://cloud.umami.is/script.js" data-website-id="04fe7943-96df-4305-86fe-6c51ee492823"></script> <!--用于统计浏览量-->
+
+
+<script src="https://fastly.jsdelivr.net/npm/live2d-widgets@1.0.0-rc.7/dist/autoload.js"></script> <!--live2d看板娘-->
+
+<link rel="stylesheet" href="https://gannia.top/APlayer-1.10.1/dist/APlayer.min.css">
+<div id="aplayer"></div>
+<script src="https://gannia.top/APlayer-1.10.1/dist/APlayer.min.js"></script>
+<script>
+    fetch('https://api.injahow.cn/meting/?type=playlist&id=2619366284')
+        .then(response => response.json())
+        .then(musicData => {
+            const ap = new APlayer({
+                // 核心配置
+                container: document.getElementById('aplayer'),  // 播放器容器元素
+                audio: musicData.map(song => ({                 // 音频列表（从API数据转换）
+                    name: song.name,      // 歌曲名称
+                    artist: song.artist,  // 艺术家
+                    url: song.url,        // 音频文件URL
+                    cover: song.pic,      // 专辑封面
+                    lrc: song.lrc         // 歌词文件URL
+                })),
+                
+                // 播放器行为配置
+                fixed: true,        // 固定模式：true=固定在页面底部，false=普通内嵌模式
+                autoplay: true,    // 自动播放：true=自动播放，false=手动播放（推荐false，避免浏览器限制）
+                volume: 0.6,        // 初始音量：0~1之间的数值，0.6表示60%音量
+                mutex: true,        // 互斥模式：true=同时只能有一个播放器播放，false=允许多个同时播放
+                order: 'random',    // 播放顺序：'list'=列表顺序，'random'=随机播放
+                
+                // 歌词配置
+                lrcType: 3,         // 歌词类型：1=HTML模式，2=js对象模式，3=lrc文件模式
+                
+                // 性能配置
+                preload: 'none',    // 预加载：'none'=不预加载，'metadata'=只加载元数据，'auto'=自动加载
+                
+                // 界面配置
+                listFolded: false,  // 播放列表：true=默认折叠，false=默认展开
+                theme: '#ee8243'    // 主题颜色：十六进制颜色值
+            });
+        });
+</script>
+
+
+<!--鼠标特效-->
+<script src="https://blog-static.cnblogs.com/files/zouwangblog/mouse-click.js"></script>
+<canvas width="1777" height="841" style="position: fixed; left: 0px; top: 0px; z-index: 2147483647; pointer-events: none;"></canvas>
+<!--鼠标特效 end-->
