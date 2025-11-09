@@ -1,7 +1,7 @@
 # chatgpt_style_policy_agent.py
 """ 
-AI政策咨询智能体 - ChatGPT风格优化版
-完整功能实现：文档上传、联网搜索、对话管理、引用展示
+AI政策咨询智能体 - 带内联引用功能
+修复版本：兼容Gradio版本问题
 """
 
 import gradio as gr
@@ -14,6 +14,7 @@ from typing import List, Dict, Any, Optional
 import uuid
 from datetime import datetime
 from pathlib import Path
+import re
 
 # 文档解析依赖
 try:
@@ -31,14 +32,18 @@ except ImportError:
     print("提示：安装 python-docx 以支持DOCX文件解析: pip install python-docx")
 
 # 配置
-OPENAI_API_KEY = "63f72c10e53241509645b29dfc5f06c8.x0RKmLAYwR7uJMsr"
-OPENAI_BASE_URL = "https://open.bigmodel.cn/api/paas/v4/"
-MODEL = "GLM-4-Flash"
+# OPENAI_API_KEY = "63f72c10e53241509645b29dfc5f06c8.x0RKmLAYwR7uJMsr"
+# OPENAI_BASE_URL = "https://open.bigmodel.cn/api/paas/v4/"
+# MODEL = "GLM-4-Flash"
+
+OPENAI_API_KEY = "sk-59018d1beb1a4783b510403496e0cce7"
+OPENAI_BASE_URL = "https://api.deepseek.com"
+MODEL = "deepseek-chat"
 
 client = OpenAI(api_key=OPENAI_API_KEY, base_url=OPENAI_BASE_URL)
 
 class ChatGPTStylePolicyAgent:
-    """ChatGPT风格政策智能体 - 完整功能版"""
+    """ChatGPT风格政策智能体 - 带内联引用功能"""
     
     def __init__(self):
         self.sessions = {}
@@ -81,7 +86,8 @@ class ChatGPTStylePolicyAgent:
         self.sessions[session_id] = {
             "history": [],
             "created_at": datetime.now().strftime("%Y-%m-%d %H:%M"),
-            "title": "新对话"
+            "title": "新对话",
+            "current_sources": {}
         }
         return session_id
     
@@ -230,40 +236,7 @@ class ChatGPTStylePolicyAgent:
         except Exception as e:
             print(f"搜索API错误: {e}")
         
-        # 备用：尝试DuckDuckGo
-        try:
-            search_query = query + " 政策 2024"
-            search_url = "https://api.duckduckgo.com/"
-            params = {
-                "q": search_query,
-                "format": "json",
-                "no_html": "1",
-                "skip_disambig": "1"
-            }
-            
-            response = requests.get(search_url, params=params, timeout=10)
-            if response.status_code == 200:
-                data = response.json()
-                results = []
-                
-                if "Results" in data and data["Results"]:
-                    for item in data["Results"][:5]:
-                        url = item.get("FirstURL", "")
-                        if url:
-                            results.append({
-                                "title": item.get("Text", query),
-                                "content": item.get("Text", ""),
-                                "url": url,
-                                "source": url.split("/")[2] if "/" in url else "未知来源",
-                                "date": datetime.now().strftime("%Y-%m-%d")
-                            })
-                
-                if results:
-                    return results
-        except Exception as e:
-            print(f"DuckDuckGo搜索错误: {e}")
-        
-        # 最终备用：模拟搜索结果
+        # 备用：模拟搜索结果
         return [
             {
                 "title": "2024年最新以旧换新政策全面解读",
@@ -313,10 +286,9 @@ class ChatGPTStylePolicyAgent:
                 })
         
         return sorted(results, key=lambda x: x["relevance_score"], reverse=True)[:5]
-    
+
     def generate_response_with_sources(self, query: str, use_web: bool, use_knowledge: bool) -> Dict:
-        """生成带引用的回答 - Grok风格引用"""
-        # 收集信息源
+        """生成带内联引用的回答 - 可点击的引用标签"""
         sources = []
         context_parts = []
         web_results = []
@@ -324,47 +296,51 @@ class ChatGPTStylePolicyAgent:
         # 知识库搜索
         if use_knowledge:
             knowledge_results = self.search_knowledge_base(query)
-            if knowledge_results:
-                context_parts.append("## 📚 相关政策知识库\n")
-                for result in knowledge_results:
-                    context_parts.append(f"**{result['title']}**")
-                    context_parts.append(f"{result['content']}")
-                    context_parts.append(f"来源：{result['source']}\n")
-                    sources.append({
-                        "title": result['title'],
-                        "source": result['source'],
-                        "url": result.get('url', '#'),
-                        "type": "知识库",
-                        "category": result.get('category', '')
-                    })
+            for result in knowledge_results:
+                source_id = len(sources)
+                sources.append({
+                    "id": source_id,
+                    "title": result['title'],
+                    "source": result['source'],
+                    "url": result.get('url', '#'),
+                    "type": "知识库",
+                    "category": result.get('category', ''),
+                    "content": result.get('content', '')[:200] + "..."  # 缩略内容
+                })
+                context_parts.append(f"[知识库{source_id}] {result['title']}: {result['content'][:100]}...")
         
         # 联网搜索
         if use_web:
             web_results = self.real_web_search(query)
-            if web_results:
-                context_parts.append("## 🌐 最新政策动态\n")
-                for result in web_results:
-                    context_parts.append(f"**{result['title']}**")
-                    context_parts.append(f"{result['content']}")
-                    context_parts.append(f"来源：{result['source']} ({result.get('date', '')})\n")
-                    sources.append({
-                        "title": result['title'], 
-                        "source": result['source'],
-                        "url": result['url'],
-                        "type": "网络搜索",
-                        "date": result.get('date', '')
-                    })
+            for result in web_results:
+                source_id = len(sources)
+                sources.append({
+                    "id": source_id,
+                    "title": result['title'],
+                    "source": result['source'],
+                    "url": result['url'],
+                    "type": "网络搜索",
+                    "date": result.get('date', ''),
+                    "content": result.get('content', '')[:200] + "..."  # 缩略内容
+                })
+                context_parts.append(f"[网络{source_id}] {result['title']}: {result['content'][:100]}...")
         
-        context = "\n\n".join(context_parts) if context_parts else "基于通用政策知识"
+        context = "\n".join(context_parts) if context_parts else "基于通用政策知识"
         
-        # 生成回答
+        # 生成带引用标记的回答
         prompt = f"""基于以下信息回答用户政策咨询问题：
 
 {context}
 
 用户问题：{query}
 
-请提供专业、准确的政策咨询服务，并在回答中自然地引用具体政策条款。回答要清晰、结构化，便于理解。"""
+重要要求：
+1.请提供专业、准确的政策咨询服务，并在回答中自然地引用具体政策条款。回答要清晰、结构化，便于理解。
+2. 在回答中自然地引用具体来源，使用[1][2][3]这样的引用标记
+
+引用格式示例：
+根据最新政策，汽车以旧换新补贴标准为购置价格的10%[1]，新能源车补贴标准为15%[2]。申请流程需要提供旧车登记证书、新车购车合同等材料[3]。
+"""
 
         try:
             response = client.chat.completions.create(
@@ -374,18 +350,6 @@ class ChatGPTStylePolicyAgent:
             )
             
             answer = response.choices[0].message.content
-            
-            # 在回答中嵌入引用链接（Grok风格）
-            if sources:
-                answer += "\n\n---\n\n**📚 参考来源：**\n\n"
-                for i, source in enumerate(sources, 1):
-                    citation_text = f"{i}. **[{source['title']}]({source['url']})**"
-                    if source.get('category'):
-                        citation_text += f" - {source['category']}"
-                    citation_text += f"\n   └─ {source['source']}"
-                    if source.get('date'):
-                        citation_text += f" ({source['date']})"
-                    answer += citation_text + "\n\n"
             
             return {
                 "answer": answer,
@@ -399,10 +363,30 @@ class ChatGPTStylePolicyAgent:
                 "sources": [],
                 "web_results": []
             }
+
+    def get_source_details(self, source_id: str) -> Dict:
+        """获取特定引用的详细信息"""
+        if self.current_session_id in self.sessions:
+            current_session = self.sessions[self.current_session_id]
+            if "current_sources" in current_session and source_id in current_session["current_sources"]:
+                return current_session["current_sources"][source_id]
+        return {"error": "引用信息不存在"}
+    
+    def format_answer_with_citations(self, answer: str, sources: List[Dict]) -> str:
+        """格式化回答，为引用标记添加HTML样式"""
+        # 使用正则表达式找到所有引用标记并替换为带样式的HTML
+        formatted_answer = answer
+        
+        # 为每个引用标记添加样式
+        for source in sources:
+            citation_pattern = f'\\[{source["id"]}\\]'
+            replacement = f'<span class="citation" data-id="{source["id"]}">[{source["id"]}]</span>'
+            formatted_answer = re.sub(citation_pattern, replacement, formatted_answer)
+        
+        return formatted_answer
     
     def stream_chat(self, query: str, history: List, use_web: bool, use_knowledge: bool) -> Any:
-        """流式对话 - 显示搜索过程和结果"""
-        # 保存到当前会话历史
+        """流式对话 - 支持内联引用显示"""
         if self.current_session_id in self.sessions:
             self.sessions[self.current_session_id]["history"] = history
         
@@ -416,45 +400,47 @@ class ChatGPTStylePolicyAgent:
             steps.append("📚 知识库检索中...")
         steps.append("💭 生成回答中...")
         
-        web_results_display = ""
-        
         for step in steps:
             if "联网搜索" in step and use_web:
-                # 执行真实搜索
                 web_results = self.real_web_search(query)
                 if web_results:
-                    web_results_display = "\n\n**🌐 搜索结果：**\n\n"
-                    for i, result in enumerate(web_results[:3], 1):
-                        web_results_display += f"{i}. [{result['title']}]({result['url']})\n   {result['content'][:100]}...\n\n"
-                    history[-1][1] = f"{step}\n\n{web_results_display}"
+                    history[-1][1] = f"{step} (找到{len(web_results)}个结果)"
                 else:
-                    history[-1][1] = f"{step}\n\n(未找到相关结果)"
-            elif "知识库" in step:
-                history[-1][1] = f"{step}"
+                    history[-1][1] = f"{step} (未找到相关结果)"
             else:
                 history[-1][1] = f"{step}"
             
             yield history, ""
             time.sleep(0.5)
         
-        # 生成回答
+        # 生成回答和来源
         result = self.generate_response_with_sources(query, use_web, use_knowledge)
         full_response = result["answer"]
+        sources = result["sources"]
         
-        # 流式输出
+        # 将回答和来源信息一起存储到会话中
+        if self.current_session_id in self.sessions:
+            current_session = self.sessions[self.current_session_id]
+            current_session["current_sources"] = {str(src["id"]): src for src in sources}
+        
+        # 格式化回答，添加引用样式
+        formatted_response = self.format_answer_with_citations(full_response, sources)
+        
+        # 流式输出回答
         words = full_response.split()
         current_text = ""
         
         for word in words:
             current_text += word + " "
+            # 在流式输出时使用纯文本，最后再替换为带样式的版本
             history[-1][1] = current_text
             yield history, ""
             time.sleep(0.03)
         
-        # 确保最终文本完整
-        history[-1][1] = full_response
+        # 最终完整回答（带样式）
+        history[-1][1] = formatted_response
         
-        # 更新会话标题（使用第一个问题）
+        # 更新会话标题
         if self.current_session_id in self.sessions:
             if self.sessions[self.current_session_id]["title"] == "新对话" and query:
                 self.sessions[self.current_session_id]["title"] = query[:30] + ("..." if len(query) > 30 else "")
@@ -465,13 +451,13 @@ class ChatGPTStylePolicyAgent:
 agent = ChatGPTStylePolicyAgent()
 
 def create_chatgpt_style_interface():
-    """创建ChatGPT风格界面 - 左侧会话列表，中间聊天区，右侧功能标签"""
+    """创建ChatGPT风格界面 - 带内联引用功能（兼容版本）"""
     with gr.Blocks(
         theme=gr.themes.Soft(
             primary_hue="blue",
             neutral_hue="slate"
         ),
-        title="政策咨询助手",
+        title="政策咨询助手 - 内联引用版",
         css="""
         .gradio-container {
             max-width: 1400px !important;
@@ -498,6 +484,29 @@ def create_chatgpt_style_interface():
             background: #d1ecf1 !important;
             font-weight: 500 !important;
         }
+        .citation {
+            color: #1e88e5;
+            cursor: pointer;
+            font-weight: 600;
+            padding: 1px 4px;
+            border-radius: 3px;
+            background: #e3f2fd;
+            margin: 0 2px;
+        }
+        .citation:hover {
+            background: #bbdefb;
+            text-decoration: underline;
+        }
+        .source-details {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .message {
+            max-width: 100% !important;
+        }
         """
     ) as demo:
         
@@ -519,6 +528,23 @@ def create_chatgpt_style_interface():
                     show_label=False,
                     interactive=True,
                     container=False
+                )
+                
+                gr.Markdown("---")
+                
+                # 引用详情区域
+                gr.Markdown("### 📚 引用详情")
+                source_details = gr.HTML(
+                    value="<div style='text-align: center; color: #666; padding: 20px;'>点击回答中的引用标记查看详情</div>",
+                    label=""
+                )
+                
+                # 引用选择下拉框
+                source_selector = gr.Dropdown(
+                    label="选择引用查看详情",
+                    choices=[],
+                    interactive=True,
+                    visible=False
                 )
                 
                 gr.Markdown("---")
@@ -550,7 +576,7 @@ def create_chatgpt_style_interface():
             with gr.Column(scale=3) as main_chat:
                 # 顶部栏
                 with gr.Row():
-                    gr.Markdown("### 🎯 政策咨询助手", elem_classes="center-title")
+                    gr.Markdown("### 🎯 政策咨询助手 - 内联引用版", elem_classes="center-title")
                     gr.HTML("""
                     <div style="display: flex; gap: 10px; align-items: center; margin-left: auto;">
                         <div style="background: #10a37f; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">
@@ -571,7 +597,9 @@ def create_chatgpt_style_interface():
                     ),
                     bubble_full_width=False,
                     layout="bubble",
-                    placeholder="💬 输入您的政策咨询问题...\n\n例如：汽车以旧换新的补贴标准是多少？"
+                    placeholder="💬 输入您的政策咨询问题...\n\n例如：汽车以旧换新的补贴标准是多少？",
+                    show_label=False,
+                    sanitize_html=False  # 允许HTML样式
                 )
                 
                 # 输入区域
@@ -612,6 +640,44 @@ def create_chatgpt_style_interface():
             for update in agent.stream_chat(message, history, web, knowledge):
                 yield update
         
+        def handle_source_selector_change(selected_source):
+            """处理引用选择器变化"""
+            if selected_source and selected_source.isdigit():
+                source_info = agent.get_source_details(selected_source)
+                if "error" not in source_info:
+                    # 构建详情显示HTML
+                    source_html = f"""
+                    <div class="source-details">
+                        <h4>📖 {source_info.get('title', '未知标题')}</h4>
+                        <p><strong>内容:</strong> {source_info.get('content', '无详细内容')}</p>
+                        <p><strong>来源:</strong> {source_info.get('source', '未知')}</p>
+                        <p><strong>类型:</strong> {source_info.get('type', '未知')}</p>
+                        <p><strong>分类:</strong> {source_info.get('category', '通用')}</p>
+                        <p><strong>日期:</strong> {source_info.get('date', '未知')}</p>
+                    """
+                    
+                    if source_info.get('url') and not source_info.get('url', '').startswith('#'):
+                        source_html += f"""
+                        <p><strong>链接:</strong> <a href="{source_info['url']}" target="_blank" style="color: #1e88e5;">🌐 打开原始链接</a></p>
+                        """
+                    
+                    source_html += "</div>"
+                    return source_html, gr.Dropdown(visible=True)
+            
+            return "<div style='text-align: center; color: #666; padding: 20px;'>未找到引用信息</div>", gr.Dropdown(visible=True)
+        
+        def update_source_selector():
+            """更新引用选择器"""
+            if agent.current_session_id in agent.sessions:
+                current_session = agent.sessions[agent.current_session_id]
+                if "current_sources" in current_session and current_session["current_sources"]:
+                    sources = current_session["current_sources"]
+                    choices = [str(src_id) for src_id in sources.keys()]
+                    choices.sort(key=int)
+                    return gr.Dropdown(choices=choices, visible=bool(choices))
+            return gr.Dropdown(choices=[], visible=False)
+        
+        # 绑定事件
         submit_btn.click(
             fn=handle_stream_chat,
             inputs=[msg, chatbot, use_web_quick, use_knowledge_quick],
@@ -619,6 +685,9 @@ def create_chatgpt_style_interface():
         ).then(
             fn=update_sessions_list,
             outputs=[sessions_list]
+        ).then(
+            fn=update_source_selector,
+            outputs=[source_selector]
         )
         
         msg.submit(
@@ -628,6 +697,9 @@ def create_chatgpt_style_interface():
         ).then(
             fn=update_sessions_list,
             outputs=[sessions_list]
+        ).then(
+            fn=update_source_selector,
+            outputs=[source_selector]
         )
         
         def new_conversation():
@@ -641,11 +713,11 @@ def create_chatgpt_style_interface():
                 if s['id'] == session_id:
                     new_choice = f"{s['title']} ({s['message_count']}条)"
                     break
-            return [], gr.Radio(choices=choices, value=new_choice)
+            return [], gr.Radio(choices=choices, value=new_choice), gr.Dropdown(choices=[], visible=False)
         
         new_chat_btn.click(
             fn=new_conversation,
-            outputs=[chatbot, sessions_list]
+            outputs=[chatbot, sessions_list, source_selector]
         )
         
         def switch_conversation(choice):
@@ -663,14 +735,15 @@ def create_chatgpt_style_interface():
             fn=switch_conversation,
             inputs=[sessions_list],
             outputs=[chatbot]
+        ).then(
+            fn=update_source_selector,
+            outputs=[source_selector]
         )
         
         def handle_file_upload(file):
             """处理文件上传"""
             if file:
                 status, preview = agent.process_uploaded_file(file)
-                # 更新上传文件显示
-                files_list = "\n\n".join([f"- {f['name']} ({f['size']} bytes)" for f in agent.uploaded_files.values()])
                 return status
             return "请选择文件"
         
@@ -680,27 +753,40 @@ def create_chatgpt_style_interface():
             outputs=[upload_status]
         )
         
-        clear_btn.click(lambda: [], None, chatbot)
+        clear_btn.click(
+            fn=lambda: ([], gr.Dropdown(choices=[], visible=False)),
+            outputs=[chatbot, source_selector]
+        )
         
         # 同步设置
         use_web_quick.change(lambda x: x, use_web_quick, use_web)
         use_knowledge_quick.change(lambda x: x, use_knowledge_quick, use_knowledge)
         
+        # 引用选择器事件
+        source_selector.change(
+            fn=handle_source_selector_change,
+            inputs=[source_selector],
+            outputs=[source_details, source_selector]
+        )
+        
         # 初始化会话列表
         demo.load(
             fn=update_sessions_list,
             outputs=[sessions_list]
+        ).then(
+            fn=update_source_selector,
+            outputs=[source_selector]
         )
         
         return demo
 
 if __name__ == "__main__":
-    print("🎯 启动ChatGPT风格政策助手（完整功能版）...")
+    print("🎯 启动政策咨询助手（内联引用版）...")
     print("💬 对话管理功能就绪")
-    print("📁 文档上传解析功能就绪")
+    print("📁 文档上传解析功能就绪") 
     print("🌐 联网搜索功能就绪")
     print("📚 知识库检索功能就绪")
-    print("📎 引用展示功能就绪")
+    print("🔗 内联引用功能就绪")
     print("🚀 访问地址: http://localhost:7860")
     
     demo = create_chatgpt_style_interface()

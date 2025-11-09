@@ -1,0 +1,45 @@
+{
+  "database": {
+    "host": "localhost",
+    "port": 3306,
+    "user": "root",
+    "password": "123456",
+    "database": "policy_agent",
+    "charset": "utf8mb4",
+    "enable_mysql": false
+  },
+  "model": {
+    "default_model": "deepseek-chat",
+    "api_key": "sk-59018d1beb1a4783b510403496e0cce7",
+    "base_url": "https://api.deepseek.com",
+    "provider": "openai",
+    "temperature": 0.3,
+    "max_tokens": 2000,
+    "enable_stream": true,
+    "enable_deep_thinking": false,
+    "custom_model_name": null
+  },
+  "search": {
+    "enable_web_search": true,
+    "search_engine": "serper",
+    "api_key": "ed3a87309d3316d9e89f371f91843a53c20806c4",
+    "max_results": 5,
+    "timeout": 10
+  },
+  "crawler": {
+    "enable_crawler": false,
+    "allowed_domains": null,
+    "max_depth": 2,
+    "delay": 1.0,
+    "user_agent": "Mozilla/5.0"
+  },
+  "ui": {
+    "theme": "soft",
+    "enable_citation": true,
+    "enable_touch": true,
+    "enable_voice": false,
+    "enable_file_upload": true,
+    "server_name": "0.0.0.0",
+    "server_port": 7860
+  }
+}

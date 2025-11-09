@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        /* 定义提示框（Tooltip）的样式 */
+        .citation { color: blue; cursor: pointer; text-decoration: underline; }
+        .tooltip {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            max-width: 300px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="answer-container">
+        <!-- 这里是AI生成的答案，由JavaScript动态插入 -->
+    </div>
+
+    <script>
+        // 假设这是从AI接收到的数据
+        const data = {
+            answer: "清华大学团队实现了全球首次两个光量子集成芯片间的量子逻辑门隐形传输，实验在1公里光纤互联下，逻辑门过程保真度高达94.07%[1]。另一项突破是科学家成功将电信波段的光量子比特隐形传态到固态存储器中[2]。",
+            citations: {
+                1: {
+                    title: "量子隐形传态新突破：清华大学实现12.3公里芯片间传输",
+                    url: "https://example.com/quantum-breakthrough-tsinghua",
+                    summary: "清华大学研究团队在《科学》杂志发表最新成果，实现了高保真度量子逻辑门传输。"
+                },
+                2: {
+                    title: "量子互联网的基石：科学家实现高效量子存储器",
+                    url: "https://example.com/quantum-memory-foundation",
+                    summary: "科研团队在《自然》杂志宣布成功实现与现有光纤网络兼容的量子存储器。"
+                }
+            }
+        };
+
+        // 1. 渲染答案文本，并将引用标签变成可点击的链接
+        let answerHtml = data.answer;
+        // 使用正则表达式将 [1], [2] 替换成HTML元素
+        answerHtml = answerHtml.replace(/\[(\d+)\]/g, '<sup><a href="#" class="citation" data-id="$1">[$1]</a></sup>');
+
+        document.getElementById('answer-container').innerHTML = answerHtml;
+
+        // 2. 创建并设置工具提示（Tooltip）元素
+        const tooltip = document.createElement('div');
+        tooltip.className = 'tooltip';
+        document.body.appendChild(tooltip);
+
+        // 3. 为所有引用链接添加交互事件
+        const citationLinks = document.querySelectorAll('.citation');
+        
+        citationLinks.forEach(link => {
+            link.addEventListener('mouseover', function(event) {
+                const citationId = this.getAttribute('data-id');
+                const citationInfo = data.citations[citationId];
+                
+                // 设置Tooltip的内容
+                tooltip.innerHTML = `
+                    <strong>${citationInfo.title}</strong><br>
+                    <em>${citationInfo.summary}</em>
+                `;
+                // 显示Tooltip并定位到鼠标附近
+                tooltip.style.display = 'block';
+                tooltip.style.left = (event.pageX + 10) + 'px';
+                tooltip.style.top = (event.pageY + 10) + 'px';
+            });
+
+            link.addEventListener('mouseout', function() {
+                // 鼠标移开时隐藏Tooltip
+                tooltip.style.display = 'none';
+            });
+
+            link.addEventListener('click', function(event) {
+                event.preventDefault(); // 阻止链接默认跳转行为
+                const citationId = this.getAttribute('data-id');
+                const citationInfo = data.citations[citationId];
+                // 点击时在新窗口打开链接
+                window.open(citationInfo.url, '_blank');
+            });
+        });
+    </script>
+</body>

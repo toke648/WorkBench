@@ -1,0 +1,22 @@
+# 核心依赖
+gradio>=4.0.0
+openai>=1.0.0
+requests>=2.31.0
+
+# 文档解析
+PyPDF2>=3.0.0
+python-docx>=1.0.0
+
+# 数据库（可选）
+mysql-connector-python>=8.0.0
+
+# 爬虫（可选）
+beautifulsoup4>=4.12.0
+bs4>=0.0.1
+
+# 数据处理
+pandas>=2.0.0
+
+# 其他工具
+pyyaml>=6.0.0
+
