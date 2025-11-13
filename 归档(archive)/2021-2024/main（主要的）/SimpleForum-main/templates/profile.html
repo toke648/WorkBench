@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}{{ user.username }}的个人主页{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <img src="{{ url_for('static', filename='avatars/' + user.avatar) }}" class="rounded-circle mb-3" width="150" height="150">
+                    <h4 class="card-title">{{ user.username }}</h4>
+                    {% if user.location %}
+                    <p class="text-muted"><i class="bi bi-geo-alt"></i> {{ user.location }}</p>
+                    {% endif %}
+                    {% if user.bio %}
+                    <p class="card-text">{{ user.bio }}</p>
+                    {% endif %}
+                    {% if user == current_user %}
+                    <a href="{{ url_for('edit_profile') }}" class="btn btn-primary">编辑个人资料</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">发帖历史</h5>
+                    {% for post in user.posts %}
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title"><a href="{{ url_for('post', post_id=post.id) }}" class="text-decoration-none">{{ post.title }}</a></h5>
+                            <p class="card-text">{{ post.content[:200] }}{% if post.content|length > 200 %}...{% endif %}</p>
+                            <div class="text-muted small">
+                                发表于 {{ post.date_posted.strftime('%Y-%m-%d %H:%M:%S') }}
+                                <span class="ms-2">{{ post.comments|length }} 条评论</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <p class="text-muted">暂无发帖</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

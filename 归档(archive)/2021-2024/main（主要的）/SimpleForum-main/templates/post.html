@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}{{ post.title }}{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2 class="card-title">{{ post.title }}</h2>
+            <div class="d-flex align-items-center mb-3">
+                <img src="{{ url_for('static', filename='avatars/' + post.author.avatar) }}" class="rounded-circle me-2" width="32" height="32">
+                <div>
+                    <a href="{{ url_for('profile', username=post.author.username) }}" class="text-decoration-none">{{ post.author.username }}</a>
+                    <div class="text-muted small">{{ post.date_posted.strftime('%Y-%m-%d %H:%M:%S') }}</div>
+                </div>
+            </div>
+            <p class="card-text">{{ post.content }}</p>
+        </div>
+    </div>
+
+    {% if current_user.is_authenticated %}
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">发表评论</h5>
+            <form method="POST" action="{{ url_for('comment', post_id=post.id) }}">
+                <div class="mb-3">
+                    <textarea class="form-control" name="content" rows="3" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">提交评论</button>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">评论 ({{ post.comments|length }})</h5>
+            {% for comment in post.comments %}
+            <div class="d-flex mb-3">
+                <img src="{{ url_for('static', filename='avatars/' + comment.author.avatar) }}" class="rounded-circle me-2" width="32" height="32">
+                <div class="flex-grow-1">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <a href="{{ url_for('profile', username=comment.author.username) }}" class="text-decoration-none">{{ comment.author.username }}</a>
+                            <small class="text-muted ms-2">{{ comment.date_posted.strftime('%Y-%m-%d %H:%M:%S') }}</small>
+                        </div>
+                    </div>
+                    <p class="mb-0">{{ comment.content }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}编辑个人资料{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">编辑个人资料</div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        <div class="mb-3 text-center">
+                            <img src="{{ url_for('static', filename='avatars/' + current_user.avatar) }}" class="rounded-circle mb-3" width="150" height="150">
+                            <div class="mb-3">
+                                <label for="avatar" class="form-label">更换头像</label>
+                                <input type="file" class="form-control" id="avatar" name="avatar" accept="image/*">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="bio" class="form-label">个人简介</label>
+                            <textarea class="form-control" id="bio" name="bio" rows="3">{{ current_user.bio }}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="location" class="form-label">所在地</label>
+                            <input type="text" class="form-control" id="location" name="location" value="{{ current_user.location }}">
+                        </div>
+                        <button type="submit" class="btn btn-primary">保存更改</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

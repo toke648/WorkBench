@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}首页{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        {% if current_user.is_authenticated %}
+        <div class="mb-4">
+            <a href="{{ url_for('new_post') }}" class="btn btn-primary">发布新帖子</a>
+        </div>
+        {% endif %}
+        
+        {% for post in posts %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title"><a href="{{ url_for('post', post_id=post.id) }}" class="text-decoration-none">{{ post.title }}</a></h5>
+                <p class="card-text">{{ post.content[:200] }}{% if post.content|length > 200 %}...{% endif %}</p>
+                <div class="d-flex align-items-center">
+                    <img src="{{ url_for('static', filename='avatars/' + post.author.avatar) }}" class="rounded-circle me-2" width="24" height="24">
+                    <div class="text-muted">
+                        <a href="{{ url_for('profile', username=post.author.username) }}" class="text-decoration-none">{{ post.author.username }}</a>
+                        - {{ post.date_posted.strftime('%Y-%m-%d %H:%M:%S') }}
+                        <span class="ms-2">{{ post.comments|length }} 条评论</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            暂无帖子
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

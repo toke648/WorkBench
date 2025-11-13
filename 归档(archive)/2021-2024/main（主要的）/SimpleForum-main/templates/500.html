@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}服务器错误{% endblock %}
+{% block content %}
+<div class="container text-center mt-5">
+    <h1 class="display-1">500</h1>
+    <p class="lead">抱歉，服务器出现了一些问题。我们正在努力修复中。</p>
+    <a href="{{ url_for('home') }}" class="btn btn-primary">返回首页</a>
+</div>
+{% endblock %}

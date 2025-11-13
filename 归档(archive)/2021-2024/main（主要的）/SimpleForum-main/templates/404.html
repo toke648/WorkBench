@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}页面未找到{% endblock %}
+{% block content %}
+<div class="container text-center mt-5">
+    <h1 class="display-1">404</h1>
+    <p class="lead">抱歉，您请求的页面不存在。</p>
+    <a href="{{ url_for('home') }}" class="btn btn-primary">返回首页</a>
+</div>
+{% endblock %}

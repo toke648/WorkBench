@@ -1,0 +1,109 @@
+2025-03-26 11:14:54,104 ERROR: Exception on /admin/dashboard [GET] [in C:\Users\16673\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\app.py:1454]
+Traceback (most recent call last):
+  File "C:\Users\16673\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\app.py", line 2070, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\16673\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\app.py", line 1515, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\16673\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\app.py", line 1513, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\16673\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\app.py", line 1499, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**req.view_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\16673\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask_login\utils.py", line 272, in decorated_view
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\16673\Desktop\论坛1\app.py", line 202, in decorated_function
+    return f(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^
+  File "c:\Users\16673\Desktop\论坛1\app.py", line 223, in admin_dashboard
+    return render_template('admin/dashboard.html', users=users)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\16673\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\templating.py", line 147, in render_template
+    return _render(
+           ^^^^^^^^
+  File "C:\Users\16673\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\templating.py", line 128, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\16673\AppData\Local\Programs\Python\Python311\Lib\site-packages\jinja2\environment.py", line 1304, in render
+    self.environment.handle_exception()
+  File "C:\Users\16673\AppData\Local\Programs\Python\Python311\Lib\site-packages\jinja2\environment.py", line 939, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "c:\Users\16673\Desktop\论坛1\templates\admin\dashboard.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "c:\Users\16673\Desktop\论坛1\templates\base.html", line 66, in top-level template code
+    {% block content %}{% endblock %}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\16673\Desktop\论坛1\templates\admin\dashboard.html", line 41, in block 'content'
+    <form action="{{ url_for('admin_remove_admin', user_id=user.id) }}" method="post" style="display: inline;">
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\16673\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\helpers.py", line 338, in url_for
+    return appctx.app.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\16673\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\helpers.py", line 325, in url_for
+    rv = url_adapter.build(
+         ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\16673\AppData\Local\Programs\Python\Python311\Lib\site-packages\werkzeug\routing.py", line 2305, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.BuildError: Could not build url for endpoint 'admin_remove_admin' with values ['user_id']. Did you mean 'admin_login' instead?
+2025-03-26 11:14:54,272 ERROR: Server Error: 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application. [in c:\Users\16673\Desktop\论坛1\app.py:40]
+2025-03-26 11:14:57,680 ERROR: Exception on /admin/dashboard [GET] [in C:\Users\16673\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\app.py:1454]
+Traceback (most recent call last):
+  File "C:\Users\16673\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\app.py", line 2070, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\16673\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\app.py", line 1515, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\16673\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\app.py", line 1513, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\16673\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\app.py", line 1499, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**req.view_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\16673\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask_login\utils.py", line 272, in decorated_view
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\16673\Desktop\论坛1\app.py", line 202, in decorated_function
+    return f(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^
+  File "c:\Users\16673\Desktop\论坛1\app.py", line 223, in admin_dashboard
+    return render_template('admin/dashboard.html', users=users)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\16673\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\templating.py", line 147, in render_template
+    return _render(
+           ^^^^^^^^
+  File "C:\Users\16673\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\templating.py", line 128, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\16673\AppData\Local\Programs\Python\Python311\Lib\site-packages\jinja2\environment.py", line 1304, in render
+    self.environment.handle_exception()
+  File "C:\Users\16673\AppData\Local\Programs\Python\Python311\Lib\site-packages\jinja2\environment.py", line 939, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "c:\Users\16673\Desktop\论坛1\templates\admin\dashboard.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "c:\Users\16673\Desktop\论坛1\templates\base.html", line 66, in top-level template code
+    {% block content %}{% endblock %}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\16673\Desktop\论坛1\templates\admin\dashboard.html", line 41, in block 'content'
+    <form action="{{ url_for('admin_remove_admin', user_id=user.id) }}" method="post" style="display: inline;">
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\16673\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\helpers.py", line 338, in url_for
+    return appctx.app.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\16673\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\helpers.py", line 325, in url_for
+    rv = url_adapter.build(
+         ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\16673\AppData\Local\Programs\Python\Python311\Lib\site-packages\werkzeug\routing.py", line 2305, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.BuildError: Could not build url for endpoint 'admin_remove_admin' with values ['user_id']. Did you mean 'admin_login' instead?
+2025-03-26 11:14:57,689 ERROR: Server Error: 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application. [in c:\Users\16673\Desktop\论坛1\app.py:40]
+2025-03-26 11:16:47,327 INFO: 论坛启动 [in C:\Users\16673\Desktop\论坛1\app.py:29]
+2025-03-26 11:16:57,253 INFO: 论坛启动 [in C:\Users\16673\Desktop\论坛1\app.py:29]
+2025-03-26 11:17:04,766 ERROR: Server Error: 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application. [in c:\Users\16673\Desktop\论坛1\app.py:40]
+2025-03-26 11:17:28,681 ERROR: Server Error: 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application. [in c:\Users\16673\Desktop\论坛1\app.py:40]
+2025-03-26 11:17:46,817 ERROR: Server Error: 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application. [in c:\Users\16673\Desktop\论坛1\app.py:40]
+2025-03-26 11:18:18,745 ERROR: Server Error: 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application. [in c:\Users\16673\Desktop\论坛1\app.py:40]
+2025-03-26 11:23:06,537 INFO: 论坛启动 [in c:\Users\16673\Desktop\论坛1\app.py:29]
