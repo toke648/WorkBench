@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>随机图片</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+        .loading {
+            color: white;
+            font-size: 18px;
+        }
+        .image-info {
+            position: fixed;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: white;
+            background: rgba(0,0,0,0.7);
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="loading" id="loading">🎲 正在随机选择图片...</div>
+    <div class="image-info" id="imageInfo" style="display: none;"></div>
+
+    <script>
+        // 图片URL列表 - 您需要先收集一些图片URL
+        const imageUrls = [
+            // 这些URL需要您先用爬虫收集，或者使用其他图片源
+            "https://i.imgs.ovh/2025/11/12/CyGTK6.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyGLep.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyGSrc.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyGvu9.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyGrQm.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyGfUF.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyGj3Q.webp",
+            "https://i.imgs.ovh/2025/11/12/CyGaYX.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyGOyH.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyGCtN.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyG7eA.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyG0f4.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyhNuC.jpeg",
+            "https://i.imgs.ovh/2025/11/12/Cyh3Qq.jpeg",
+            "https://i.imgs.ovh/2025/11/12/Cyh1Tt.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyhX3a.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyhBYe.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyhxRh.jpeg",
+            "https://i.imgs.ovh/2025/11/12/Cyhuyr.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyhGtM.jpeg",
+            "https://i.imgs.ovh/2025/11/12/Cyhh8x.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyhIfL.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyhKmn.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyhtP1.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyhlTb.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyhE1Y.jpeg",
+            "https://i.imgs.ovh/2025/11/12/Cyh4Y0.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyhYCd.png",
+            "https://i.imgs.ovh/2025/11/12/Cyh286.png",
+            "https://i.imgs.ovh/2025/11/12/CyhMLm.jpeg",
+            "https://i.imgs.ovh/2025/11/12/Cyh8CU.jpeg",
+            "https://i.imgs.ovh/2025/11/12/Cyhq6N.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyhkcA.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyhRG4.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyhAPC.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyhVwt.png",
+            "https://i.imgs.ovh/2025/11/12/CyhUJa.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyhTAe.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyhL7h.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyhFlr.jpeg",
+            "https://i.imgs.ovh/2025/11/12/Cyhv6M.jpeg",
+            "https://i.imgs.ovh/2025/11/12/Cyhrjx.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyhcGL.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyhjMn.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyhaS1.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyhyHY.jpeg",
+            "https://i.imgs.ovh/2025/11/12/Cyh77g.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyIidd.jpeg",    
+            "https://i.imgs.ovh/2025/11/12/CyIN6O.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyI3j6.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyIwhp.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyIXMc.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyIBS9.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyIuXm.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyImHF.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyIh0X.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyIpdU.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyIK5H.png",
+            "https://i.imgs.ovh/2025/11/12/CyIdhA.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyIED4.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyI4SC.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyIYXq.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyIJ2t.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyIHza.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyI20e.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyIWEh.png",
+            "https://i.imgs.ovh/2025/11/12/CyIQ5r.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyIPaM.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyIDIx.png",
+            "https://i.imgs.ovh/2025/11/12/CyI9DL.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyIsFn.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyI8B1.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyI62b.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyI5bY.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyIq00.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyIgEg.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyIRqd.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyIAaO.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyIbI6.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyIV9p.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyIUFc.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyILB9.webp",
+            "https://i.imgs.ovh/2025/11/12/CyISnm.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyIFbF.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyIriQ.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyIf4X.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyIcqU.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyIjZH.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyIZpN.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyIO9A.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyIyv4.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyI7BC.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CyI0nq.png",
+            "https://i.imgs.ovh/2025/11/12/CypiVt.png",
+            "https://i.imgs.ovh/2025/11/12/Cyp3ia.jpeg",
+            "https://i.imgs.ovh/2025/11/12/Cyp14e.jpeg",
+            "https://i.imgs.ovh/2025/11/12/Cypwkh.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CypXZr.jpeg",
+            "https://i.imgs.ovh/2025/11/12/CypxpM.jpeg",
+            // 添加更多图片URL...
+        ];
+
+        // 如果没有图片URL，使用默认的随机图片源
+        // const fallbackImageUrls = [
+        //     "https://picsum.photos/1200/800?random=1",
+        //     "https://picsum.photos/1200/800?random=2", 
+        //     "https://picsum.photos/1200/800?random=3",
+        //     "https://picsum.photos/1200/800?random=4",
+        //     "https://picsum.photos/1200/800?random=5"
+        // ];
+
+        function getRandomImageUrl() {
+            const urls = imageUrls.length > 0 ? imageUrls : fallbackImageUrls;
+            const randomIndex = Math.floor(Math.random() * urls.length);
+            return urls[randomIndex];
+        }
+
+        function redirectToRandomImage() {
+            const imageUrl = getRandomImageUrl();
+            console.log('跳转到图片:', imageUrl);
+            
+            // 直接跳转到图片
+            window.location.href = imageUrl;
+        }
+
+        // 页面加载后立即跳转
+        window.addEventListener('load', function() {
+            setTimeout(redirectToRandomImage, 1000); // 1秒后跳转，让用户看到加载提示
+        });
+    </script>
+</body>
+</html>
