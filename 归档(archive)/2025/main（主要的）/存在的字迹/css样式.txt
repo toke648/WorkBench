@@ -1,0 +1,69 @@
+/* 自定义签名容器 */
+#custom-fluid-signature {
+    font-size: 13px;
+    line-height: 1.5;
+    font-weight: 400;
+    color: #fff;
+    padding-left: 100px;
+    width: 100%;
+    max-width: var(--max-width);
+    margin-top: -10px;
+    cursor: default;
+    position: relative;
+}
+
+/* 每个字 */
+#custom-fluid-signature .char {
+    display: inline-block;
+    transition: opacity 0.3s;
+    position: relative;
+}
+
+/* 普通字可点击 */
+#custom-fluid-signature .char:not(.self):not(.punctuation) {
+    cursor: pointer;
+}
+
+#custom-fluid-signature .char:not(.self):not(.punctuation):hover {
+    background: rgba(255,255,255,0.1);
+}
+
+/* 固定状态 */
+#custom-fluid-signature .char.frozen {
+    opacity: 0.6;
+}
+
+/* "我"字特殊样式 */
+#custom-fluid-signature .char.self {
+    font-weight: 500;
+    color: #ffd700; /* 金色强调 */
+    //color: #ffd700; /* 金色强调 */
+}
+
+#custom-fluid-signature .char.self.frozen {
+    color: #ffa500; /* 暂停时变橙色 */
+    //color: #ffa500; /* 暂停时变橙色 */
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.8; }
+    50% { opacity: 0.4; }
+    100% { opacity: 0.8; }
+}
+
+/* 触摸提示框 */
+.char-tooltip {
+    position: fixed;
+    background: rgba(0,0,0,0.85);
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 11px;
+    max-width: 200px;
+    z-index: 10000;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+    border-left: 3px solid #ffd700;
+}

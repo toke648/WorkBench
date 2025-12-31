@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>自变文本 - 词表约束版</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 40px;
+            background: white;
+            font-family: Georgia, serif;
+            line-height: 1.6;
+        }
+        
+        .fluid-text {
+            position: relative;
+            cursor: default;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .fluid-text span {
+            transition: opacity 0.3s;
+            border-bottom: 1px dotted transparent;
+        }
+        
+        .fluid-text span:hover {
+            border-bottom-color: #ccc;
+        }
+        
+        .fluid-text span.changing {
+            opacity: 0.5;
+        }
+        
+        .fluid-text span.frozen {
+            color: #666;
+            border-bottom: 1px solid #999;
+        }
+        
+        .tooltip {
+            position: fixed;
+            background: white;
+            border: 1px solid #eee;
+            padding: 8px 12px;
+            font-size: 0.9em;
+            max-width: 300px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            pointer-events: none;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+    </style>
+</head>
+<body>
+    <div class="fluid-text" data-text="深海中的星光不是终点，而是眼睛适应黑暗的方式。每个字都在寻找属于自己的故事。"></div>
+
+    <script>
+        // 你的碎片化表达库（可按需扩展）
+        const fragmentExpressions = [
+            "深海是第一个念头",
+            "星光是被迫升维的倒影",
+            "让成为成为成为",
+            "存在者始于存在终于存在",
+            "一颗带着过去射向未来的子弹",
+            "我只是流动的过程本身",
+            "衔尾蛇叼着尾巴但不吞下",
+            "箱子可以是任何东西但我不打开",
+            "在了解的过程中去创造",
+            "让问题成为过程",
+            "宇宙通过我看到自己的存在",
+            "我是认知的泉眼",
+            "前方的路未见脚下的路未生",
+            "一切都变了一切又都没有改变",
+            "不知道在干什么但继续行动",
+            "回以爱是认出本源后的共振",
+            "文字在触摸中显现隐藏的故事"
+        ];
+        
+        // 简化的中文标点符号（仅表达性基础标点）
+        const basicPunctuation = "，。、；：？！…—";
+        
+        // 从你博客中提取的高频词表示例（实际应用中应从API获取）
+        const blogVocabulary = [
+            "深海", "星光", "奇点", "泉水", "认知", "存在", "流动", "生成",
+            "追问", "意义", "破碎", "完整", "张力", "体验", "构建", "语言",
+            "符号", "宇宙", "书写", "时间", "空间", "意识", "思考", "行动",
+            "创造", "记录", "探索", "理解", "表达", "变化", "过程", "瞬间",
+            "永恒", "有限", "无限", "可能", "现实", "理想", "痛苦", "安宁",
+            "愤怒", "纯粹", "技术", "哲学", "诗歌", "代码", "学习", "记忆",
+            "遗忘", "选择", "自由", "孤独", "连接", "爱", "真", "善", "美"
+        ];
+        
+        // 核心函数
+        function initFluidText(element) {
+            const originalText = element.dataset.text;
+            
+            // 解析文本为字符数组
+            const chars = originalText.split('');
+            const words = chars.map((char, index) => ({
+                index,
+                original: char,
+                current: char,
+                isPunctuation: basicPunctuation.includes(char),
+                isFrozen: false,
+                meanings: getRandomMeanings(3),
+                changeCount: 0,
+                lastChangeTime: 0
+            }));
+            
+            // 确保至少有一个"我"字
+            let hasSelf = false;
+            words.forEach(word => {
+                if (word.current === '我' || word.current === '自我') {
+                    hasSelf = true;
+                }
+            });
+            
+            if (!hasSelf) {
+                // 随机选择一个非标点位置替换为"我"
+                const nonPunctWords = words.filter(w => !w.isPunctuation);
+                if (nonPunctWords.length > 0) {
+                    const target = nonPunctWords[Math.floor(Math.random() * nonPunctWords.length)];
+                    target.current = '我';
+                    target.original = '我';
+                }
+            }
+            
+            // 渲染
+            renderText(element, words);
+            
+            // 创建工具提示
+            const tooltip = document.createElement('div');
+            tooltip.className = 'tooltip';
+            document.body.appendChild(tooltip);
+            
+            // 点击事件：冻结/解冻
+            element.addEventListener('click', (e) => {
+                if (e.target.tagName === 'SPAN') {
+                    const index = parseInt(e.target.dataset.index);
+                    const word = words[index];
+                    
+                    // 标点符号和"我"字不能冻结
+                    if (word.isPunctuation || word.current === '我') return;
+                    
+                    word.isFrozen = !word.isFrozen;
+                    
+                    // 更新显示
+                    const span = element.children[index];
+                    span.classList.toggle('frozen', word.isFrozen);
+                    
+                    // 如果解冻且长时间未变化，立即触发一次变化
+                    if (!word.isFrozen && word.changeCount === 0) {
+                        setTimeout(() => changeWord(element, words, index, tooltip), 300);
+                    }
+                }
+            });
+            
+            // 悬停事件：显示含义
+            element.addEventListener('mouseover', (e) => {
+                if (e.target.tagName === 'SPAN') {
+                    const index = parseInt(e.target.dataset.index);
+                    const word = words[index];
+                    
+                    // 显示工具提示
+                    const currentMeaning = word.meanings[
+                        Math.min(word.changeCount, word.meanings.length - 1)
+                    ];
+                    
+                    // 如果是"我"字，显示特殊含义
+                    const displayText = word.current === '我' ? 
+                        `「我」——这个位置永远属于自我指涉` : 
+                        `「${word.current}」——${currentMeaning}`;
+                    
+                    tooltip.textContent = displayText;
+                    tooltip.style.left = e.pageX + 'px';
+                    tooltip.style.top = (e.pageY + 15) + 'px';
+                    tooltip.style.opacity = 1;
+                    
+                    // 悬停触发变化（仅对非冻结、非标点、非"我"字）
+                    if (!word.isFrozen && !word.isPunctuation && word.current !== '我') {
+                        setTimeout(() => {
+                            changeWord(element, words, index, tooltip);
+                        }, 1000);
+                    }
+                }
+            });
+            
+            element.addEventListener('mousemove', (e) => {
+                if (tooltip.style.opacity === '1') {
+                    tooltip.style.left = e.pageX + 'px';
+                    tooltip.style.top = (e.pageY + 15) + 'px';
+                }
+            });
+            
+            element.addEventListener('mouseout', () => {
+                tooltip.style.opacity = 0;
+            });
+            
+            // 自动变化系统
+            setInterval(() => {
+                // 1. 处理"我"字的随机游走
+                handleSelfMovement(element, words);
+                
+                // 2. 随机变化一个未冻结的非标点字
+                const changeableWords = words.filter(w => 
+                    !w.isFrozen && 
+                    !w.isPunctuation && 
+                    w.current !== '我' &&
+                    Date.now() - w.lastChangeTime > 5000 // 防抖动
+                );
+                
+                if (changeableWords.length > 0) {
+                    const word = changeableWords[Math.floor(Math.random() * changeableWords.length)];
+                    changeWord(element, words, word.index, tooltip);
+                }
+            }, 300);
+        }
+        
+        // 渲染文本
+        function renderText(element, words) {
+            element.innerHTML = words.map(word => {
+                let className = '';
+                if (word.isFrozen) className += 'frozen ';
+                if (word.current === '我') className += 'self ';
+                
+                return `<span class="${className.trim()}" data-index="${word.index}">${word.current}</span>`;
+            }).join('');
+        }
+        
+        // 获取随机含义（从你的碎片化表达中抽取）
+        function getRandomMeanings(count) {
+            const shuffled = [...fragmentExpressions].sort(() => 0.5 - Math.random());
+            return shuffled.slice(0, count);
+        }
+        
+        // 变化单个字
+        function changeWord(element, words, index, tooltip) {
+            const word = words[index];
+            
+            // 跳过不应变化的字
+            if (word.isFrozen || word.isPunctuation || word.current === '我') return;
+            
+            // 变化冷却
+            if (Date.now() - word.lastChangeTime < 1000) return;
+            
+            word.changeCount++;
+            word.lastChangeTime = Date.now();
+            
+            // 标记变化状态
+            const span = element.children[index];
+            span.classList.add('changing');
+            
+            setTimeout(() => {
+                // 从词表中随机选择新字
+                let newChar = word.current;
+                let attempts = 0;
+                
+                while (newChar === word.current && attempts < 10) {
+                    // 从词汇表随机选择一个词，取其中一个字
+                    const randomWord = blogVocabulary[
+                        Math.floor(Math.random() * blogVocabulary.length)
+                    ];
+                    newChar = randomWord.charAt(
+                        Math.floor(Math.random() * randomWord.length)
+                    );
+                    attempts++;
+                }
+                
+                // 更新字
+                word.current = newChar;
+                span.textContent = newChar;
+                span.classList.remove('changing');
+                
+                // 更新含义（添加新的碎片表达）
+                if (word.meanings.length < 5) {
+                    word.meanings.push(
+                        fragmentExpressions[Math.floor(Math.random() * fragmentExpressions.length)]
+                    );
+                }
+            }, 300);
+        }
+        
+        // 处理"我"字的随机游走
+        function handleSelfMovement(element, words) {
+            // 查找所有"我"字
+            const selfWords = words.filter(w => w.current === '我');
+            
+            if (selfWords.length === 0) {
+                // 如果没有"我"，随机插入一个
+                const nonPunctWords = words.filter(w => !w.isPunctuation && !w.isFrozen);
+                if (nonPunctWords.length > 0) {
+                    const target = nonPunctWords[Math.floor(Math.random() * nonPunctWords.length)];
+                    target.current = '我';
+                    const span = element.children[target.index];
+                    span.textContent = '我';
+                    span.classList.add('self');
+                }
+                return;
+            }
+            
+            // 确保只有一个"我"
+            if (selfWords.length > 1) {
+                // 随机保留一个，其他变回原字或随机字
+                const keepIndex = Math.floor(Math.random() * selfWords.length);
+                selfWords.forEach((word, i) => {
+                    if (i !== keepIndex) {
+                        word.current = word.original;
+                        const span = element.children[word.index];
+                        span.textContent = word.current;
+                        span.classList.remove('self');
+                    }
+                });
+            }
+            
+            // 随机移动"我"字（小概率事件）
+            if (Math.random() < 0.1) { // 10%概率移动
+                const currentSelf = words.find(w => w.current === '我');
+                const nonPunctWords = words.filter(w => 
+                    !w.isPunctuation && 
+                    !w.isFrozen && 
+                    w.current !== '我'
+                );
+                
+                if (nonPunctWords.length > 0) {
+                    const target = nonPunctWords[Math.floor(Math.random() * nonPunctWords.length)];
+                    
+                    // 原位置恢复
+                    currentSelf.current = currentSelf.original;
+                    const oldSpan = element.children[currentSelf.index];
+                    oldSpan.textContent = currentSelf.current;
+                    oldSpan.classList.remove('self');
+                    
+                    // 新位置变成"我"
+                    target.current = '我';
+                    const newSpan = element.children[target.index];
+                    newSpan.textContent = '我';
+                    newSpan.classList.add('self');
+                }
+            }
+        }
+        
+        // 初始化
+        document.querySelectorAll('.fluid-text').forEach(initFluidText);
+    </script>
+</body>
+</html>

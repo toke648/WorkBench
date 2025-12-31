@@ -1,0 +1,237 @@
+<!-- 在博客标题区域插入自定义签名 -->
+<script>
+(function() {
+    // 你的碎片化表达库
+    const fragments = [
+        "深海是第一个念头",
+        "星光是被迫升维的倒影", 
+        "让成为成为成为",
+        "存在者始于存在终于存在",
+        "一颗带着过去射向未来的子弹",
+        "我只是流动的过程本身",
+        "衔尾蛇叼着尾巴但不吞下",
+        "箱子可以是任何东西但我不打开",
+        "在了解的过程中去创造",
+        "让问题成为过程",
+        "宇宙通过我看到自己的存在",
+        "我是认知的泉眼",
+        "前方的路未见脚下的路未生",
+        "一切都变了一切又都没有改变",
+        "不知道在干什么但继续行动",
+        "回以爱是认出本源后的共振",
+        "文字在触摸中显现隐藏的故事"
+    ];
+    
+    function initFluidSignature() {
+        const blogTitle = document.getElementById('blogTitle');
+        if (!blogTitle || document.getElementById('custom-fluid-signature')) return;
+        
+        // 创建容器
+        const signatureDiv = document.createElement('div');
+        signatureDiv.id = 'custom-fluid-signature';
+        
+        // 初始文本
+        const initText = '我在深海与星光之间寻找语言如何生成自身，每个字都记得它可以成为另一个字。';
+        
+        // 创建字符元素
+        signatureDiv.innerHTML = initText.split('').map((char, i) => {
+            let cls = 'char';
+            if (char === '我') cls += ' self';
+            if ('，。、；：？！…—'.includes(char)) cls += ' punctuation';
+            return `<span class="${cls}" data-index="${i}">${char}</span>`;
+        }).join('');
+        
+        // 插入页面
+        const h1 = blogTitle.querySelector('h1');
+        h1 ? blogTitle.insertBefore(signatureDiv, h1.nextElementSibling) : blogTitle.appendChild(signatureDiv);
+        
+        // 初始化系统
+        initDynamicSystem(signatureDiv);
+    }
+    
+    function initDynamicSystem(container) {
+        const punctuation = '，。、；：？！…—';
+        const blogChars = "深海星光奇点泉水认知存在流动生成追问意义破碎完整张力体验构建语言符号宇宙书写时间意识思考行动创造记录探索理解表达变化过程瞬间永恒有限无限可能现实理想痛苦安宁愤怒纯粹技术哲学诗歌代码学习记忆遗忘选择自由孤独连接爱真善美";
+        
+        // 初始化状态
+        let words = container.textContent.split('').map((char, i) => ({
+            index: i,
+            original: char,
+            current: char,
+            isPunctuation: punctuation.includes(char),
+            isSelf: char === '我',
+            frozenUntil: 0,
+            lastFragment: fragments[Math.floor(Math.random() * fragments.length)]
+        }));
+        
+        // 创建工具提示
+        const tooltip = document.createElement('div');
+        tooltip.className = 'char-tooltip';
+        document.body.appendChild(tooltip);
+        
+        // 渲染函数
+        function render() {
+            words.forEach(word => {
+                const span = container.querySelector(`[data-index="${word.index}"]`);
+                if (!span) return;
+                
+                span.textContent = word.current;
+                span.classList.toggle('frozen', word.frozenUntil > Date.now());
+                span.classList.toggle('self', word.isSelf);
+                span.title = word.isSelf ? '主体性（点击尝试固定）' : '点击固定15秒';
+                
+                // 更新data属性用于触摸提示
+                span.dataset.fragment = word.lastFragment;
+            });
+        }
+        
+        // 触摸提示
+        let hideTooltipTimer;
+        container.addEventListener('mouseover', (e) => {
+            if (e.target.classList.contains('char')) {
+                clearTimeout(hideTooltipTimer);
+                
+                const fragment = e.target.dataset.fragment;
+                if (fragment) {
+                    tooltip.textContent = fragment;
+                    const rect = e.target.getBoundingClientRect();
+                    tooltip.style.left = rect.left + 'px';
+                    tooltip.style.top = (rect.top - 35) + 'px';
+                    tooltip.style.opacity = '1';
+                }
+            }
+        });
+        
+        container.addEventListener('mouseout', () => {
+            hideTooltipTimer = setTimeout(() => {
+                tooltip.style.opacity = '0';
+            }, 300);
+        });
+        
+        // 点击事件
+        container.addEventListener('click', (e) => {
+            if (!e.target.classList.contains('char')) return;
+            
+            const index = parseInt(e.target.dataset.index);
+            const word = words[index];
+            
+            if (word.isPunctuation) return;
+            
+            if (word.isSelf) {
+                // "我"字特殊逻辑：可暂停但3秒后强制重置
+                if (word.frozenUntil > Date.now()) {
+                    // 如果已经暂停，提前解冻
+                    word.frozenUntil = 0;
+                } else {
+                    // 暂停3秒
+                    word.frozenUntil = Date.now() + 3000;
+                    
+                    // 3秒后强制重置：移动到新位置
+                    setTimeout(() => {
+                        moveSelfWord(true); // 强制移动
+                    }, 3000);
+                }
+            } else {
+                // 普通字：固定15秒
+                word.frozenUntil = Date.now() + 15000;
+                setTimeout(() => {
+                    word.frozenUntil = 0;
+                    render();
+                }, 15000);
+            }
+            
+            render();
+        });
+        
+        // 变化单个字
+        function changeWord(index) {
+            const word = words[index];
+            if (word.frozenUntil > Date.now() || word.isPunctuation || word.isSelf) return;
+            
+            const newChar = blogChars[Math.floor(Math.random() * blogChars.length)];
+            word.current = newChar;
+            word.lastFragment = fragments[Math.floor(Math.random() * fragments.length)];
+            render();
+        }
+        
+        // "我"字移动函数
+        function moveSelfWord(force = false) {
+            if (!force && Math.random() > 0.1) return; // 10%自然概率
+            
+            const currentSelf = words.find(w => w.isSelf);
+            if (!currentSelf) return ensureSelfExists();
+            
+            const candidates = words.filter(w => 
+                !w.isPunctuation && 
+                w !== currentSelf && 
+                w.frozenUntil <= Date.now()
+            );
+            
+            if (candidates.length === 0) return;
+            
+            const target = candidates[Math.floor(Math.random() * candidates.length)];
+            
+            // 原位置恢复
+            currentSelf.current = currentSelf.original;
+            currentSelf.isSelf = false;
+            currentSelf.frozenUntil = 0;
+            
+            // 新位置变成"我"
+            target.current = '我';
+            target.isSelf = true;
+            target.frozenUntil = 0;
+            target.lastFragment = '主体性在此处显形';
+            
+            render();
+        }
+        
+        // 确保至少一个"我"
+        function ensureSelfExists() {
+            if (words.some(w => w.isSelf)) return;
+            
+            const candidates = words.filter(w => !w.isPunctuation && w.frozenUntil <= Date.now());
+            if (candidates.length > 0) {
+                const target = candidates[Math.floor(Math.random() * candidates.length)];
+                target.current = '我';
+                target.isSelf = true;
+                target.lastFragment = '主体性在此处显形';
+                render();
+            }
+        }
+        
+        // 初始化渲染
+        render();
+        
+        // 自动变化系统
+        let speed = 1; // 1=正常，2=快速，0.5=慢速
+        setInterval(() => {
+            // 普通字变化
+            const changeable = words.filter(w => !w.isPunctuation && !w.isSelf && w.frozenUntil <= Date.now());
+            for (let i = 0; i < speed && changeable.length > 0; i++) {
+                const target = changeable[Math.floor(Math.random() * changeable.length)];
+                changeWord(target.index);
+            }
+            
+            // 确保"我"存在
+            ensureSelfExists();
+            
+            // "我"字自然移动（除非被暂停）
+            if (!words.find(w => w.isSelf && w.frozenUntil > Date.now())) {
+                moveSelfWord();
+            }
+        }, 3000 / speed); // 速度控制
+        
+        // 速度控制（演示用）
+        window.fluidSpeed = (multiplier) => {
+            speed = multiplier;
+        };
+    }
+    
+    // 启动
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initFluidSignature);
+    } else {
+        initFluidSignature();
+    }
+})();
+</script>

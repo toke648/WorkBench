@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <style>
+        body {
+            margin: 40px;
+            font-family: sans-serif;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div id="text">我在深海与星光之间寻找语言如何生成自身。每个字都记得它可以成为另一个字。</div>
+
+    <script>
+        const originalText = "我在深海与星光之间寻找语言如何生成自身。每个字都记得它可以成为另一个字。";
+        const chars = originalText.split('');
+        const blogChars = "深海星光奇点泉水认知存在流动生成追问意义破碎完整张力体验构建语言符号宇宙书写时间空间意识思考行动创造记录探索理解表达变化过程瞬间永恒有限无限可能现实理想痛苦安宁愤怒纯粹技术哲学诗歌代码学习记忆遗忘选择自由孤独连接爱真善美";
+        const punctuation = "，。、；：？！…—";
+        
+        let words = chars.map((char, i) => ({
+            index: i,
+            original: char,
+            current: char,
+            isPunctuation: punctuation.includes(char),
+            frozenUntil: 0,
+            isSelf: char === '我'
+        }));
+        
+        function render() {
+            const text = words.map(w => w.current).join('');
+            document.getElementById('text').textContent = text;
+        }
+        
+        function changeWord(index) {
+            const word = words[index];
+            if (word.isPunctuation || word.isSelf || word.frozenUntil > Date.now()) return;
+            
+            // 随机选择新字
+            const newChar = blogChars[Math.floor(Math.random() * blogChars.length)];
+            word.current = newChar;
+            
+            render();
+        }
+        
+        function ensureSelfExists() {
+            const hasSelf = words.some(w => w.isSelf);
+            if (!hasSelf) {
+                const candidates = words.filter(w => !w.isPunctuation && w.frozenUntil <= Date.now());
+                if (candidates.length > 0) {
+                    const target = candidates[Math.floor(Math.random() * candidates.length)];
+                    target.current = '我';
+                    target.isSelf = true;
+                    render();
+                }
+            }
+        }
+        
+        // 点击事件
+        document.getElementById('text').addEventListener('click', function(e) {
+            const textNode = this.firstChild;
+            const range = document.createRange();
+            const offset = getClickOffset(e, textNode);
+            
+            if (offset >= 0 && offset < words.length) {
+                const word = words[offset];
+                if (!word.isPunctuation && !word.isSelf) {
+                    // 固定15秒
+                    word.frozenUntil = Date.now() + 15000;
+                    // 定时恢复
+                    setTimeout(() => {
+                        word.frozenUntil = 0;
+                    }, 15000);
+                }
+            }
+        });
+        
+        function getClickOffset(e, textNode) {
+            const range = document.createRange();
+            range.selectNodeContents(textNode);
+            const rects = range.getClientRects();
+            
+            for (let i = 0; i < rects.length; i++) {
+                const rect = rects[i];
+                if (e.clientX >= rect.left && e.clientX <= rect.right &&
+                    e.clientY >= rect.top && e.clientY <= rect.bottom) {
+                    // 近似计算点击了第几个字
+                    const totalWidth = rect.right - rect.left;
+                    const clickX = e.clientX - rect.left;
+                    const charWidth = totalWidth / words.length;
+                    return Math.floor(clickX / charWidth);
+                }
+            }
+            return -1;
+        }
+        
+        // 初始渲染
+        render();
+        
+        // 自动变化：每3秒变一个字
+        setInterval(() => {
+            const changeable = words.filter(w => 
+                !w.isPunctuation && 
+                !w.isSelf && 
+                w.frozenUntil <= Date.now()
+            );
+            if (changeable.length > 0) {
+                const target = changeable[Math.floor(Math.random() * changeable.length)];
+                changeWord(target.index);
+            }
+            ensureSelfExists();
+        }, 3000);
+        
+        // “我”字随机移动（每10秒10%概率）
+        setInterval(() => {
+            if (Math.random() < 0.1) {
+                const currentSelf = words.find(w => w.isSelf);
+                if (currentSelf) {
+                    const candidates = words.filter(w => 
+                        !w.isPunctuation && 
+                        w !== currentSelf && 
+                        w.frozenUntil <= Date.now()
+                    );
+                    if (candidates.length > 0) {
+                        const target = candidates[Math.floor(Math.random() * candidates.length)];
+                        currentSelf.current = currentSelf.original;
+                        currentSelf.isSelf = false;
+                        target.current = '我';
+                        target.isSelf = true;
+                        render();
+                    }
+                }
+            }
+        }, 10000);
+    </script>
+</body>
+</html>
