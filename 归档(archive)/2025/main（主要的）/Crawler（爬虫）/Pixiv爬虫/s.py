@@ -3,14 +3,16 @@ import time
 import pickle
 import requests
 from selenium import webdriver
-from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.service import Service
 import bs4
 
 # **1. 浏览器配置**
 options = Options()
 options.headless = False
-driver = webdriver.Chrome(options=options)
+service = Service(ChromeDriverManager().install())
+driver = webdriver.Chrome(service=service, options=options)
 
 # **Pixiv 主页**
 pixiv_url = "https://www.pixiv.net/"

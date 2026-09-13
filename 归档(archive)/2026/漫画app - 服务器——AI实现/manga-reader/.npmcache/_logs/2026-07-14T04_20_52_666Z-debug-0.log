@@ -1,0 +1,39 @@
+0 verbose cli C:\Program Files\nodejs\node.exe C:\Users\16673\AppData\Roaming\npm\node_modules\npm\bin\npm-cli.js
+1 info using npm@11.5.2
+2 info using node@v22.11.0
+3 silly config load:file:C:\Users\16673\AppData\Roaming\npm\node_modules\npm\npmrc
+4 silly config load:file:C:\Users\16673\.doubao\chats\2026-07-14\new-chat\manga-reader\.npmrc
+5 silly config load:file:C:\Users\16673\.npmrc
+6 silly config load:file:C:\Users\16673\AppData\Roaming\npm\etc\npmrc
+7 verbose title npm install adm-zip
+8 verbose argv "install" "adm-zip" "--cache" "C:\\Users\\16673\\.doubao\\chats\\2026-07-14\\new-chat\\manga-reader\\.npmcache"
+9 verbose logfile logs-max:10 dir:C:\Users\16673\.doubao\chats\2026-07-14\new-chat\manga-reader\.npmcache\_logs\2026-07-14T04_20_52_666Z-
+10 verbose logfile C:\Users\16673\.doubao\chats\2026-07-14\new-chat\manga-reader\.npmcache\_logs\2026-07-14T04_20_52_666Z-debug-0.log
+11 silly logfile done cleaning log files
+12 silly packumentCache heap:4345298944 maxSize:1086324736 maxEntrySize:543162368
+13 silly idealTree buildDeps
+14 silly fetch manifest adm-zip@*
+15 silly packumentCache full:https://registry.npmjs.org/adm-zip cache-miss
+16 http fetch GET 200 https://registry.npmjs.org/adm-zip 1519ms (cache miss)
+17 silly packumentCache full:https://registry.npmjs.org/adm-zip set size:undefined disposed:false
+18 silly placeDep ROOT adm-zip@0.6.0 OK for: manga-reader@1.0.0 want: *
+19 silly reify moves {}
+20 silly audit bulk request { 'adm-zip': [ '0.6.0' ] }
+21 http cache adm-zip@https://registry.npmjs.org/adm-zip/-/adm-zip-0.6.0.tgz 1ms (cache hit)
+22 silly tarball no local data for adm-zip@https://registry.npmjs.org/adm-zip/-/adm-zip-0.6.0.tgz. Extracting by manifest.
+23 http fetch POST 200 https://registry.npmjs.org/-/npm/v1/security/advisories/bulk 280ms
+24 silly audit report {}
+25 http fetch GET 200 https://registry.npmjs.org/npm 2853ms
+26 http fetch GET 200 https://registry.npmjs.org/adm-zip/-/adm-zip-0.6.0.tgz 1645ms (cache miss)
+27 silly ADD node_modules/adm-zip
+28 verbose cwd C:\Users\16673\.doubao\chats\2026-07-14\new-chat\manga-reader
+29 verbose os Windows_NT 10.0.26100
+30 verbose node v22.11.0
+31 verbose npm  v11.5.2
+32 notice
+32 notice New minor version of npm available! 11.5.2 -> 11.18.0
+32 notice Changelog: https://github.com/npm/cli/releases/tag/v11.18.0
+32 notice To update run: npm install -g npm@11.18.0
+32 notice  { force: true, [Symbol(proc-log.meta)]: true }
+33 verbose exit 0
+34 info ok

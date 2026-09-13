@@ -1,19 +1,23 @@
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.chrome.options import Options
-import requests
-import pickle
-import time
-import bs4
 import os
+import time
+import pickle
+import requests
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.service import Service
+import bs4
 
-# 浏览器设置
+# **1. 浏览器配置**
+# options = Options()
+# options.headless = False
+# driver = webdriver.Chrome(options=options)
 options = Options()
-options.headless = True  # 头模式，表示是否显示浏览器窗口
-driver = webdriver.Chrome(options=options)
+options.headless = True     # 无头模式
+service = Service(ChromeDriverManager().install())
+driver = webdriver.Chrome(service=service, options=options)
 
-tan8_url = "https://www.tan8.com/yuepu-90966.html"
+tan8_url = "https://fund.eastmoney.com/data/fundranking.html"
 
 driver.get(tan8_url)
 # 等待页面加载
@@ -28,7 +32,16 @@ time.sleep(3)
 page_source = driver.page_source
 
 soup = bs4.BeautifulSoup(page_source, "html.parser")
-links = soup.find_all("div", class_="swiper-slide swiper-slide-active").find('img')
+# links = soup.find_all("div", class_="swiper-slide swiper-slide-active").find('img')
+links = soup.find("div", class_="dbtable").find_all("tr")
+# print(links)
 
-print(links)
+for link in links:
+    print(link.find_all("td")[0])
 
+# tan8_url = "https://fund.eastmoney.com/data/fundranking.html"
+
+# response = requests.get(tan8_url)   
+# response.encoding = 'utf-8'
+# print(response.status_code)
+# print(response.text)
